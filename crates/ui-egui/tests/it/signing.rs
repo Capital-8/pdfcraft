@@ -918,6 +918,6 @@ fn signing_online_without_a_network_says_so_and_saves_nothing() {
     certify_with_file_id(&mut h);
     h.run_steps(4);
     let error = h.state().sign_draft.as_ref().and_then(|d| d.error.clone()).unwrap_or_default();
-    assert!(error.contains("Preferences ▸ Signatures"), "{error:?}");
+    assert!(error.contains("Preferences > Signatures"), "{error:?}");
     assert!(!out.exists());
 }

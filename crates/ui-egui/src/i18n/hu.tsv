@@ -2630,7 +2630,7 @@ animation effects	Off	Ki
 	Timestamp server	Időbélyeg-kiszolgáló
 	Include revocation information when signing (LTV)	Visszavonási adatok beágyazása aláíráskor (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Az aláírás ekkor a hálózatot használja: az időbélyeg-kiszolgáló megkapja az aláírás kivonatát, a hitelesítésszolgáltatóktól pedig lekérdezi, hogy a tanúsítványokat visszavonták-e. Mindkettővel az aláírások PAdES B-LTA szintűek.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Az időbélyegekhez és a visszavonási adatokhoz az asztali alkalmazás szükséges. Az itteni aláíráshoz kapcsolja ki őket a Beállítások ▸ Aláírások részben.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Az időbélyegekhez és a visszavonási adatokhoz az asztali alkalmazás szükséges. Az itteni aláíráshoz kapcsolja ki őket a Beállítások > Aláírások részben.
 	the certificate authorities	a hitelesítésszolgáltatók
 	Asking {server}…	Lekérdezés: {server}…
 	Signing was cancelled; nothing was saved.	Az aláírás megszakítva; semmi sem lett mentve.

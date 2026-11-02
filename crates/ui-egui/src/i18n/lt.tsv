@@ -2882,7 +2882,7 @@ theme	Appearance	Išvaizda
 	Timestamp server	Laiko žymų serveris
 	Include revocation information when signing (LTV)	Pasirašant įtraukti atšaukimo informaciją (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Tada pasirašant naudojamas tinklas: laiko žymų serveris gauna parašo maišos reikšmę, o sertifikavimo centrų klausiama, ar sertifikatai nėra atšaukti. Su abiem parinktimis parašai atitinka PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Laiko žymoms ir atšaukimo informacijai reikia darbalaukio programos. Norėdami pasirašyti čia, išjunkite jas skiltyje Nuostatos ▸ Parašai.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Laiko žymoms ir atšaukimo informacijai reikia darbalaukio programos. Norėdami pasirašyti čia, išjunkite jas skiltyje Nuostatos > Parašai.
 	the certificate authorities	sertifikavimo centrų
 	Asking {server}…	Klausiama {server}…
 	Signing was cancelled; nothing was saved.	Pasirašymas atšauktas; nieko neišsaugota.

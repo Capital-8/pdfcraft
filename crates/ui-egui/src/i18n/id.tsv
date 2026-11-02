@@ -2859,7 +2859,7 @@ theme	Appearance	Tampilan
 	Timestamp server	Server stempel waktu
 	Include revocation information when signing (LTV)	Sertakan informasi pencabutan saat menandatangani (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Penandatanganan lalu terhubung ke jaringan: server stempel waktu menerima hash tanda tangan, dan otoritas sertifikat ditanya apakah sertifikat dicabut. Dengan keduanya, tanda tangan menjadi PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Stempel waktu dan informasi pencabutan memerlukan aplikasi desktop. Matikan di Preferensi ▸ Tanda tangan untuk menandatangani di sini.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Stempel waktu dan informasi pencabutan memerlukan aplikasi desktop. Matikan di Preferensi > Tanda tangan untuk menandatangani di sini.
 	the certificate authorities	otoritas sertifikat
 	Asking {server}…	Menanyakan {server}…
 	Signing was cancelled; nothing was saved.	Penandatanganan dibatalkan; tidak ada yang disimpan.

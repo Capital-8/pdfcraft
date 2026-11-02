@@ -2620,7 +2620,7 @@ animation effects	Off	Өшірулі
 	Timestamp server	Уақыт белгісі сервері
 	Include revocation information when signing (LTV)	Қол қою кезінде кері шақыру туралы мәліметті қосу (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Сонда қол қою желіні пайдаланады: уақыт белгісі сервері қолтаңбаның хешін алады, ал куәландыру орталықтарынан сертификаттардың кері шақырылғаны сұралады. Екеуі де қосулы болса, қолтаңбалар PAdES B-LTA болады.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Уақыт белгілері мен кері шақыру туралы мәліметке жұмыс үстелі қолданбасы қажет. Осы жерде қол қою үшін оларды Баптаулар ▸ Қолтаңбалар бөлімінде өшіріңіз.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Уақыт белгілері мен кері шақыру туралы мәліметке жұмыс үстелі қолданбасы қажет. Осы жерде қол қою үшін оларды Баптаулар > Қолтаңбалар бөлімінде өшіріңіз.
 	the certificate authorities	куәландыру орталықтары
 	Asking {server}…	{server} сұралуда…
 	Signing was cancelled; nothing was saved.	Қол қою тоқтатылды; ештеңе сақталмады.

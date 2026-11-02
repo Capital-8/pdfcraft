@@ -2929,7 +2929,7 @@ certificate	Version	Verze
 	Timestamp server	Server časových razítek
 	Include revocation information when signing (LTV)	Při podepisování vložit informace o odvolání (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Podepisování pak používá síť: server časových razítek obdrží hash podpisu a certifikačních autorit se aplikace zeptá, zda certifikáty nejsou odvolané. S oběma volbami jsou podpisy PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Časová razítka a informace o odvolání vyžadují desktopovou aplikaci. Chcete-li podepsat zde, vypněte je v Předvolby ▸ Podpisy.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Časová razítka a informace o odvolání vyžadují desktopovou aplikaci. Chcete-li podepsat zde, vypněte je v Předvolby > Podpisy.
 	the certificate authorities	certifikační autority
 	Asking {server}…	Dotaz na {server}…
 	Signing was cancelled; nothing was saved.	Podepisování bylo zrušeno; nic nebylo uloženo.

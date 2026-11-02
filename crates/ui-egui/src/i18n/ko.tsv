@@ -2858,7 +2858,7 @@ theme	Appearance	모양
 	Timestamp server	타임스탬프 서버
 	Include revocation information when signing (LTV)	서명할 때 해지 정보 포함(LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	이 경우 서명 시 온라인에 연결합니다. 타임스탬프 서버는 서명의 해시를 받고, 인증 기관에 인증서가 해지되었는지 확인합니다. 둘 다 사용하면 서명은 PAdES B-LTA가 됩니다.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	타임스탬프와 해지 정보에는 데스크톱 앱이 필요합니다. 여기에서 서명하려면 환경설정 ▸ 서명에서 끄세요.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	타임스탬프와 해지 정보에는 데스크톱 앱이 필요합니다. 여기에서 서명하려면 환경설정 > 서명에서 끄세요.
 	the certificate authorities	인증 기관
 	Asking {server}…	{server}에 확인 중…
 	Signing was cancelled; nothing was saved.	서명이 취소되었습니다. 저장된 것은 없습니다.

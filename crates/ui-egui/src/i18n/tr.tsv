@@ -2618,7 +2618,7 @@ animation effects	Off	Kapalı
 	Timestamp server	Zaman damgası sunucusu
 	Include revocation information when signing (LTV)	İmzalarken iptal bilgilerini ekle (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	İmzalama bu durumda ağa bağlanır: zaman damgası sunucusu imzanın bir özetini alır ve sertifika yetkililerine sertifikaların iptal edilip edilmediği sorulur. İkisiyle birlikte imzalar PAdES B-LTA olur.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Zaman damgaları ve iptal bilgileri masaüstü uygulamasını gerektirir. Burada imzalamak için bunları Tercihler ▸ İmzalar bölümünden kapatın.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Zaman damgaları ve iptal bilgileri masaüstü uygulamasını gerektirir. Burada imzalamak için bunları Tercihler > İmzalar bölümünden kapatın.
 	the certificate authorities	sertifika yetkilileri
 	Asking {server}…	{server} sorgulanıyor…
 	Signing was cancelled; nothing was saved.	İmzalama iptal edildi; hiçbir şey kaydedilmedi.

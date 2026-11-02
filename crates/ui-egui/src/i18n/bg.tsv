@@ -2593,7 +2593,7 @@ animation effects	Off	Изключени
 	Timestamp server	Сървър за времеви печати
 	Include revocation information when signing (LTV)	Включване на информация за отмяна при подписване (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Тогава подписването използва мрежата: сървърът за времеви печати получава хеш на подписа, а удостоверителните органи се питат дали сертификатите са отменени. С двете опции подписите са PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Времевите печати и информацията за отмяна изискват настолното приложение. Изключете ги от Предпочитания ▸ Подписи, за да подпишете тук.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Времевите печати и информацията за отмяна изискват настолното приложение. Изключете ги от Предпочитания > Подписи, за да подпишете тук.
 	the certificate authorities	удостоверителните органи
 	Asking {server}…	Запитване към {server}…
 	Signing was cancelled; nothing was saved.	Подписването е отменено; нищо не е запазено.

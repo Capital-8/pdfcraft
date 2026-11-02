@@ -2613,7 +2613,7 @@ animation effects	Off	Joaktiv
 	Timestamp server	Shërbyesi i vulave kohore
 	Include revocation information when signing (LTV)	Përfshi informacionin e revokimit gjatë nënshkrimit (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Atëherë nënshkrimi përdor rrjetin: shërbyesi i vulave kohore merr një hash të nënshkrimit dhe autoritetet e certifikimit pyeten nëse certifikatat janë revokuar. Me të dyja, nënshkrimet janë PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Vulat kohore dhe informacioni i revokimit kërkojnë aplikacionin për desktop. Çaktivizojini te Preferencat ▸ Nënshkrimet për të nënshkruar këtu.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Vulat kohore dhe informacioni i revokimit kërkojnë aplikacionin për desktop. Çaktivizojini te Preferencat > Nënshkrimet për të nënshkruar këtu.
 	the certificate authorities	autoritetet e certifikimit
 	Asking {server}…	Po pyetet {server}…
 	Signing was cancelled; nothing was saved.	Nënshkrimi u anulua; nuk u ruajt asgjë.

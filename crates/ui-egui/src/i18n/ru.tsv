@@ -2543,7 +2543,7 @@ animation effects	Off	Выкл
 	Timestamp server	Сервер меток времени
 	Include revocation information when signing (LTV)	Добавлять сведения об отзыве при подписании (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	При подписании приложение обращается к сети: сервер меток времени получает хеш подписи, а удостоверяющие центры проверяют, не отозваны ли сертификаты. С обоими параметрами подписи соответствуют PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Для меток времени и сведений об отзыве нужно настольное приложение. Отключите их в разделе Настройки ▸ Подписи, чтобы подписать здесь.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Для меток времени и сведений об отзыве нужно настольное приложение. Отключите их в разделе Настройки > Подписи, чтобы подписать здесь.
 	the certificate authorities	удостоверяющие центры
 	Asking {server}…	Запрос к {server}…
 	Signing was cancelled; nothing was saved.	Подписание отменено; ничего не сохранено.

@@ -2915,7 +2915,7 @@ theme	Appearance	Aparência
 	Timestamp server	Servidor de carimbo do tempo
 	Include revocation information when signing (LTV)	Incluir informações de revogação ao assinar (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	A assinatura passa a usar a rede: o servidor de carimbo do tempo recebe um hash da assinatura e as autoridades certificadoras são consultadas sobre a revogação dos certificados. Com as duas opções, as assinaturas são PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Carimbos do tempo e informações de revogação precisam do aplicativo para desktop. Desative-os em Preferências ▸ Assinaturas para assinar aqui.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Carimbos do tempo e informações de revogação precisam do aplicativo para desktop. Desative-os em Preferências > Assinaturas para assinar aqui.
 	the certificate authorities	as autoridades certificadoras
 	Asking {server}…	Consultando {server}…
 	Signing was cancelled; nothing was saved.	A assinatura foi cancelada; nada foi salvo.

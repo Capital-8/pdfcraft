@@ -2718,7 +2718,7 @@ animation effects	Off	Wyłączone
 	Timestamp server	Serwer znaczników czasu
 	Include revocation information when signing (LTV)	Dołączaj informacje o unieważnieniu podczas podpisywania (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Podpisywanie korzysta wtedy z sieci: serwer znaczników czasu otrzymuje skrót podpisu, a urzędy certyfikacji są pytane, czy certyfikaty nie zostały unieważnione. Z obiema opcjami podpisy są w formacie PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Znaczniki czasu i informacje o unieważnieniu wymagają aplikacji komputerowej. Wyłącz je w Preferencje ▸ Podpisy, aby podpisać tutaj.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Znaczniki czasu i informacje o unieważnieniu wymagają aplikacji komputerowej. Wyłącz je w Preferencje > Podpisy, aby podpisać tutaj.
 	the certificate authorities	urzędy certyfikacji
 	Asking {server}…	Pytanie {server}…
 	Signing was cancelled; nothing was saved.	Podpisywanie anulowano; nic nie zapisano.

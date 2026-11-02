@@ -2630,7 +2630,7 @@ animation effects	Off	オフ
 	Timestamp server	タイムスタンプサーバー
 	Include revocation information when signing (LTV)	署名時に失効情報を含める (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	署名時にネットワークを使用します。タイムスタンプサーバーには署名のハッシュが送られ、認証局には証明書が失効していないかを問い合わせます。両方を有効にすると、署名は PAdES B-LTA になります。
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	タイムスタンプと失効情報にはデスクトップアプリが必要です。ここで署名するには、環境設定 ▸ 署名 でオフにしてください。
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	タイムスタンプと失効情報にはデスクトップアプリが必要です。ここで署名するには、環境設定 > 署名 でオフにしてください。
 	the certificate authorities	認証局
 	Asking {server}…	{server} に問い合わせています…
 	Signing was cancelled; nothing was saved.	署名をキャンセルしました。何も保存されていません。

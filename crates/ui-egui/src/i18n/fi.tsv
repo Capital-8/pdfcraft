@@ -2898,7 +2898,7 @@ theme	Appearance	Teema
 	Timestamp server	Aikaleimapalvelin
 	Include revocation information when signing (LTV)	Sisällytä sulkutiedot allekirjoitettaessa (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Allekirjoitus käyttää silloin verkkoa: aikaleimapalvelin saa allekirjoituksen tiivisteen, ja varmentajilta kysytään, onko varmenteita suljettu. Molemmilla allekirjoitukset ovat PAdES B-LTA -muotoisia.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Aikaleimat ja sulkutiedot vaativat työpöytäsovelluksen. Poista ne käytöstä kohdassa Asetukset ▸ Allekirjoitukset, jotta voit allekirjoittaa tässä.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Aikaleimat ja sulkutiedot vaativat työpöytäsovelluksen. Poista ne käytöstä kohdassa Asetukset > Allekirjoitukset, jotta voit allekirjoittaa tässä.
 	the certificate authorities	varmentajat
 	Asking {server}…	Kysytään palvelimelta {server}…
 	Signing was cancelled; nothing was saved.	Allekirjoitus peruutettiin; mitään ei tallennettu.

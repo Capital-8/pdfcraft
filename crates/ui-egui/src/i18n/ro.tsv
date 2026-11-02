@@ -2888,7 +2888,7 @@ theme	Appearance	Aspect
 	Timestamp server	Server de marcare temporală
 	Include revocation information when signing (LTV)	Include informațiile de revocare la semnare (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Semnarea folosește atunci rețeaua: serverul de marcare temporală primește un hash al semnăturii, iar autoritățile de certificare sunt întrebate dacă certificatele sunt revocate. Cu ambele, semnăturile sunt PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Marcajele temporale și informațiile de revocare necesită aplicația desktop. Dezactivează-le în Preferințe ▸ Semnături pentru a semna aici.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Marcajele temporale și informațiile de revocare necesită aplicația desktop. Dezactivează-le în Preferințe > Semnături pentru a semna aici.
 	the certificate authorities	autoritățile de certificare
 	Asking {server}…	Se interoghează {server}…
 	Signing was cancelled; nothing was saved.	Semnarea a fost anulată; nu s-a salvat nimic.

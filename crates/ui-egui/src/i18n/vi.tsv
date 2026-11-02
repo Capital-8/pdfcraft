@@ -2890,7 +2890,7 @@ key	Space	Space
 	Timestamp server	Máy chủ dấu thời gian
 	Include revocation information when signing (LTV)	Đưa thông tin thu hồi vào khi ký (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Khi đó việc ký sẽ dùng mạng: máy chủ dấu thời gian nhận một giá trị băm của chữ ký, và các tổ chức chứng thực được hỏi xem chứng chỉ có bị thu hồi không. Khi bật cả hai, chữ ký đạt PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Dấu thời gian và thông tin thu hồi cần ứng dụng máy tính. Hãy tắt chúng trong Tùy chọn ▸ Chữ ký để ký tại đây.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Dấu thời gian và thông tin thu hồi cần ứng dụng máy tính. Hãy tắt chúng trong Tùy chọn > Chữ ký để ký tại đây.
 	the certificate authorities	các tổ chức chứng thực
 	Asking {server}…	Đang hỏi {server}…
 	Signing was cancelled; nothing was saved.	Đã hủy ký; không có gì được lưu.

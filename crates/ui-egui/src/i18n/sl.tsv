@@ -2627,7 +2627,7 @@ animation effects	Off	Izklopljeni
 	Timestamp server	Strežnik časovnih žigov
 	Include revocation information when signing (LTV)	Ob podpisovanju vključi podatke o preklicu (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Podpisovanje nato uporablja omrežje: strežnik časovnih žigov prejme zgoščeno vrednost podpisa, overitelje pa vpraša, ali so potrdila preklicana. Z obema možnostma so podpisi PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Časovni žigi in podatki o preklicu potrebujejo namizno aplikacijo. Če želite podpisati tukaj, jih izklopite v Nastavitve ▸ Podpisi.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Časovni žigi in podatki o preklicu potrebujejo namizno aplikacijo. Če želite podpisati tukaj, jih izklopite v Nastavitve > Podpisi.
 	the certificate authorities	overitelje
 	Asking {server}…	Poizvedba pri {server} …
 	Signing was cancelled; nothing was saved.	Podpisovanje je preklicano; nič ni shranjeno.

@@ -2862,7 +2862,7 @@ certificate	SHA-256 digest	Impronta SHA-256
 	Timestamp server	Server di marca temporale
 	Include revocation information when signing (LTV)	Includi le informazioni di revoca durante la firma (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	La firma usa allora la rete: il server di marca temporale riceve un hash della firma e alle autorità di certificazione viene chiesto se i certificati sono revocati. Con entrambe, le firme sono PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Le marche temporali e le informazioni di revoca richiedono l'app desktop. Disattivale in Preferenze ▸ Firme per firmare qui.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Le marche temporali e le informazioni di revoca richiedono l'app desktop. Disattivale in Preferenze > Firme per firmare qui.
 	the certificate authorities	le autorità di certificazione
 	Asking {server}…	Richiesta a {server}…
 	Signing was cancelled; nothing was saved.	Firma annullata; non è stato salvato nulla.

@@ -2631,7 +2631,7 @@ animation effects	Off	Aus
 	Timestamp server	Zeitstempelserver
 	Include revocation information when signing (LTV)	Sperrinformationen beim Signieren einbetten (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Beim Signieren geht PdfCraft dann online: Der Zeitstempelserver erhält einen Hash der Signatur, und die Zertifizierungsstellen werden gefragt, ob die Zertifikate gesperrt sind. Mit beidem sind Signaturen PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Zeitstempel und Sperrinformationen brauchen die Desktop-App. Schalten Sie sie unter Einstellungen ▸ Signaturen aus, um hier zu signieren.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Zeitstempel und Sperrinformationen brauchen die Desktop-App. Schalten Sie sie unter Einstellungen > Signaturen aus, um hier zu signieren.
 	the certificate authorities	die Zertifizierungsstellen
 	Asking {server}…	{server} wird gefragt …
 	Signing was cancelled; nothing was saved.	Signieren abgebrochen; nichts wurde gespeichert.

@@ -2953,7 +2953,7 @@ theme	Appearance	Aspecto
 	Timestamp server	Servidor de sellado de tiempo
 	Include revocation information when signing (LTV)	Incluir información de revocación al firmar (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Al firmar se usa la red: el servidor de sellado de tiempo recibe un hash de la firma y se consulta a las autoridades de certificación si los certificados están revocados. Con ambas opciones, las firmas son PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Los sellos de tiempo y la información de revocación requieren la aplicación de escritorio. Desactívelos en Preferencias ▸ Firmas para firmar aquí.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Los sellos de tiempo y la información de revocación requieren la aplicación de escritorio. Desactívelos en Preferencias > Firmas para firmar aquí.
 	the certificate authorities	las autoridades de certificación
 	Asking {server}…	Consultando a {server}…
 	Signing was cancelled; nothing was saved.	Se canceló la firma; no se guardó nada.

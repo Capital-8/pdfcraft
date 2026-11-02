@@ -2652,7 +2652,7 @@ animation effects	Off	Вимкнено
 	Timestamp server	Сервер позначок часу
 	Include revocation information when signing (LTV)	Додавати відомості про відкликання під час підписування (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Під час підписування застосунок звертається до мережі: сервер позначок часу отримує хеш підпису, а центри сертифікації перевіряють, чи не відкликано сертифікати. З обома параметрами підписи відповідають PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Для позначок часу й відомостей про відкликання потрібен настільний застосунок. Вимкніть їх у Налаштування ▸ Підписи, щоб підписати тут.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Для позначок часу й відомостей про відкликання потрібен настільний застосунок. Вимкніть їх у Налаштування > Підписи, щоб підписати тут.
 	the certificate authorities	центри сертифікації
 	Asking {server}…	Запит до {server}…
 	Signing was cancelled; nothing was saved.	Підписування скасовано; нічого не збережено.

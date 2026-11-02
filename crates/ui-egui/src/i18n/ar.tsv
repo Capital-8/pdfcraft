@@ -2897,7 +2897,7 @@ certificate	Version	الإصدار
 	Timestamp server	خادم الختم الزمني
 	Include revocation information when signing (LTV)	تضمين معلومات الإلغاء عند التوقيع (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	يتصل التوقيع عندئذٍ بالشبكة: يتلقى خادم الختم الزمني تجزئة للتوقيع، وتُسأل جهات إصدار الشهادات عمّا إذا كانت الشهادات ملغاة. مع الخيارين معًا تكون التواقيع PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	تحتاج الأختام الزمنية ومعلومات الإلغاء إلى تطبيق سطح المكتب. أوقفها من التفضيلات ▸ التواقيع للتوقيع هنا.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	تحتاج الأختام الزمنية ومعلومات الإلغاء إلى تطبيق سطح المكتب. أوقفها من التفضيلات > التواقيع للتوقيع هنا.
 	the certificate authorities	جهات إصدار الشهادات
 	Asking {server}…	جارٍ سؤال {server}…
 	Signing was cancelled; nothing was saved.	أُلغي التوقيع؛ لم يُحفظ شيء.

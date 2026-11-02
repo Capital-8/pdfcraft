@@ -2888,7 +2888,7 @@ theme	Appearance	Aspecte
 	Timestamp server	Servidor de segellat de temps
 	Include revocation information when signing (LTV)	Inclou informació de revocació en signar (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	Aleshores la signatura es connecta a la xarxa: el servidor de segellat de temps rep un resum de la signatura i es pregunta a les autoritats de certificació si els certificats estan revocats. Amb totes dues opcions, les signatures són PAdES B-LTA.
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	Els segells de temps i la informació de revocació necessiten l'aplicació d'escriptori. Desactiveu-los a Preferències ▸ Signatures per signar aquí.
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	Els segells de temps i la informació de revocació necessiten l'aplicació d'escriptori. Desactiveu-los a Preferències > Signatures per signar aquí.
 	the certificate authorities	les autoritats de certificació
 	Asking {server}…	S'està consultant {server}…
 	Signing was cancelled; nothing was saved.	S'ha cancel·lat la signatura; no s'ha desat res.

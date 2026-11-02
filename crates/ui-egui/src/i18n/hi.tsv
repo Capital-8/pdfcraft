@@ -2858,7 +2858,7 @@ theme	Appearance	स्वरूप
 	Timestamp server	टाइमस्टैम्प सर्वर
 	Include revocation information when signing (LTV)	हस्ताक्षर करते समय निरस्तीकरण जानकारी शामिल करें (LTV)
 	Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA.	तब हस्ताक्षर ऑनलाइन होता है: टाइमस्टैम्प सर्वर को हस्ताक्षर का हैश मिलता है, और प्रमाणन प्राधिकरणों से पूछा जाता है कि क्या प्रमाणपत्र निरस्त हैं। दोनों के साथ, हस्ताक्षर PAdES B-LTA होते हैं।
-	Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.	टाइमस्टैम्प और निरस्तीकरण जानकारी के लिए डेस्कटॉप ऐप चाहिए। यहाँ हस्ताक्षर करने के लिए उन्हें प्राथमिकताएँ ▸ हस्ताक्षर में बंद करें।
+	Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.	टाइमस्टैम्प और निरस्तीकरण जानकारी के लिए डेस्कटॉप ऐप चाहिए। यहाँ हस्ताक्षर करने के लिए उन्हें प्राथमिकताएँ > हस्ताक्षर में बंद करें।
 	the certificate authorities	प्रमाणन प्राधिकरण
 	Asking {server}…	{server} से पूछा जा रहा है…
 	Signing was cancelled; nothing was saved.	हस्ताक्षर रद्द किया गया; कुछ भी सहेजा नहीं गया।

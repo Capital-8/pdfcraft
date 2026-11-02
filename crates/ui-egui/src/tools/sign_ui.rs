@@ -649,7 +649,7 @@ impl PdfCraftApp {
         choice: SignGraphic,
     ) -> Result<(), String> {
         let Some(fetch) = self.http.clone() else {
-            return Err(tl!("Timestamps and revocation information need the desktop app. Turn them off in Preferences ▸ Signatures to sign here.")
+            return Err(tl!("Timestamps and revocation information need the desktop app. Turn them off in Preferences > Signatures to sign here.")
                 .to_string());
         };
         let tsa = Some(self.timestamp_server.trim().to_string()).filter(|s| !s.is_empty());
