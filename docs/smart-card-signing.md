@@ -1,6 +1,6 @@
 # Signing with smart cards and tokens
 
-> **Last reviewed:** 2026-10-22 · **Last updated:** 2026-10-22 · **Change:** new (PKCS #11 cards in the dialog, CLI and agent tools; opt-in timestamps and LTV)
+> **Last reviewed:** 2026-11-02 · **Last updated:** 2026-11-02 · **Change:** SafeNet eToken module; the module that sees a card is preferred; expired and revoked card certificates are refused before the PIN; the PIN prompt masks ICP-Brasil CPF numbers
 
 PdfCraft signs with keys on smart cards and USB tokens (national eID cards, corporate badges,
 qualified-signature tokens) the way Acrobat, LibreOffice and Firefox do:
@@ -17,13 +17,20 @@ lockout works as with any other application.
 ## Where
 
 - **Desktop:** Sign with a Digital ID ▸ Configure New Digital ID ▸ *Use a smart card or token*.
-  The module field is prefilled from known middleware locations (`pkcs11::candidate_modules`).
+  The module field is prefilled with the first known middleware module that sees a signing
+  certificate, else the first installed (`pkcs11::preferred_module`).
   When a card holds an authentication and a signing certificate, only the signing one
   (keyUsage nonRepudiation) is offered.
 - **CLI / agent tools:** `sign_card_ids` lists the cards' certificates; `sign_document` takes the
   `pkcs11:` reference. The module comes only from `pdfcraft-cli --card-module PATH` (else the first
-  known one installed) and the PIN only from a terminal prompt in `pdfcraft-cli run`; the MCP
-  server can sign only with PIN-pad readers. No tool argument carries a PIN or a module path.
+  known one installed that sees a card) and the PIN only from a terminal prompt in
+  `pdfcraft-cli run`; the MCP server can sign only with PIN-pad readers. No tool argument carries
+  a PIN or a module path.
+- **Before the PIN:** a card certificate outside its validity dates is refused; with `--network`
+  its revocation (and that of the CAs above it) is asked too, and a revoked one is refused. Tokens
+  often keep a replaced, revoked certificate next to its successor. `sign_card_ids` reports each
+  certificate's status. The PIN prompt masks an ICP-Brasil CPF in the certificate name
+  (`NAME:***.456.789-**`).
 - **Check a card without the app:** `cargo run -p pdfcraft-sign --example pkcs11_probe -- [--sign] [--tsa URL]`.
 
 ## Long-term validation (opt-in)
@@ -47,6 +54,7 @@ signing. The CLI does the same with `timestamp_server` / `ltv`, only when starte
 | Smart Card Middleware (NXP JCOP 3 "iGOV" eID cards; observed) | `C:\Program Files\Smart Card Middleware\bin\idoPKCS.dll` |
 | Athena IDProtect | `C:\Windows\System32\asepkcs.dll` |
 | Thales/Gemalto IDPrime (SafeNet Authentication Client 10.8 R2+) | `C:\Program Files\SafeNet\Authentication\SAC\x64\IDPrimePKCS1164.dll` |
+| SafeNet eToken (SafeNet Authentication Client; ICP-Brasil A3 tokens; observed) | `C:\Windows\System32\eTPKCS11.dll` |
 | OpenSC | `C:\Program Files\OpenSC Project\OpenSC\pkcs11\opensc-pkcs11.dll` |
 
 Windows also copies card certificates into the user's certificate store, but under the legacy

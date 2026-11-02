@@ -813,7 +813,7 @@ pub fn tools() -> Vec<ToolDef> {
             .ro()
             .cmd("sign.digital")
             .with(schema(json!({}), &[])),
-        t("sign_card_ids", "List smart card digital IDs", "The signing certificates on the smart cards and tokens in the readers, through the card's PKCS #11 driver (the one the user chose with pdfcraft-cli --card-module, or the first known driver installed), with the pkcs11: reference sign_document takes. Listing needs no PIN.")
+        t("sign_card_ids", "List smart card digital IDs", "The signing certificates on the smart cards and tokens in the readers, through the card's PKCS #11 driver (the one the user chose with pdfcraft-cli --card-module, or else the first known driver installed that sees a card), with the pkcs11: reference sign_document takes and a status: expired (outside its validity dates), revoked, good, revocation_unknown (some revocation information couldn't be fetched) or revocation_not_checked (no network access). Revocation is asked only with network access (pdfcraft-cli --network). Listing needs no PIN. sign_document refuses an expired or revoked card certificate before asking for the PIN.")
             .ro()
             .cmd("sign.digital")
             .with(schema(json!({}), &[])),

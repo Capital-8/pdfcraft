@@ -36,10 +36,11 @@ fn run() -> Result<(), String> {
     let tsa = args.iter().position(|a| a == "--tsa").and_then(|i| args.get(i + 1)).cloned();
     let module = match args.iter().position(|a| a == "--module").and_then(|i| args.get(i + 1)) {
         Some(m) => PathBuf::from(m),
-        None => pkcs11::candidate_modules().into_iter().next().ok_or("no known card module found; pass --module PATH")?,
+        None => pkcs11::preferred_module().ok_or("no known card module found; pass --module PATH")?,
     };
     println!("module: {}", module.display());
 
+    let now = pdfcraft_sign::Time::from_unix(std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(0, |d| d.as_secs() as i64));
     let certs = pkcs11::identities(&module).map_err(|e| format!("listing the cards: {e}"))?;
     println!("certificates found: {}", certs.len());
     if certs.is_empty() {
@@ -72,7 +73,7 @@ fn run() -> Result<(), String> {
         }
         let cert = &c.certificate;
         println!(
-            "  [{i}] {} | issuer: {} | key: {} | keyUsage: {} | is_ca: {} | expires: {:04}-{:02}-{:02} | offered for signing: {}",
+            "  [{i}] {} | issuer: {} | key: {} | keyUsage: {} | is_ca: {} | expires: {:04}-{:02}-{:02} | valid now: {} | offered for signing: {}",
             shown(cert.display_name()),
             cert.issuer.common_name().unwrap_or("?"),
             cert.public_key.describe(),
@@ -81,6 +82,7 @@ fn run() -> Result<(), String> {
             cert.not_after.year,
             cert.not_after.month,
             cert.not_after.day,
+            cert.valid_at(now),
             c.for_signing,
         );
     }
@@ -90,9 +92,16 @@ fn run() -> Result<(), String> {
     }
 
     let signers: Vec<_> = certs.iter().filter(|c| c.for_signing).collect();
-    let Some(signer) = signers.first() else { return Err("no certificate would be offered for signing".into()) };
+    // A token often keeps a replaced certificate next to the new one: sign with one valid now.
+    // Revocation needs the network; `pdfcraft-cli run --network` checks it before the PIN.
+    let Some(signer) = signers.iter().find(|c| c.certificate.valid_at(now)).or(signers.first()) else {
+        return Err("no certificate would be offered for signing".into());
+    };
     if signers.len() > 1 {
-        println!("note: {} certificates would be offered; --sign uses the first", signers.len());
+        println!(
+            "note: {} certificates would be offered; --sign uses the first valid now, which this probe doesn't check for revocation",
+            signers.len()
+        );
     }
     if !sign {
         println!("OK: the card is readable. Run again with --sign to sign a test PDF (asks for the PIN once).");

@@ -274,7 +274,7 @@ pub fn open(module_path: &Path, reference_or_name: &str, pin: Option<Pin>) -> Re
 
 /// The certificates on the token that issued `leaf`, nearest first: the card's part of the
 /// chain. Its other identities (an authentication certificate) and unrelated CAs stay out.
-fn issuers(leaf: &Certificate, certs: &[TokenCertificate]) -> Vec<Certificate> {
+pub fn issuers(leaf: &Certificate, certs: &[TokenCertificate]) -> Vec<Certificate> {
     let mut chain: Vec<Certificate> = Vec::new();
     let mut current = leaf;
     // Bounded by the number of certificates, so a cycle of names ends.
@@ -381,12 +381,15 @@ pub fn candidate_modules() -> Vec<PathBuf> {
         // on a Windows 11 machine, 2026-10). Older Athena
         // IDProtect cards use asepkcs.dll; Thales IDPrime middleware installs IDPrimePKCS1164.dll
         // under Program Files (SafeNet Authentication Client 10.8 R2 and later) or the older
-        // IDGo 800 folder.
+        // IDGo 800 folder. The same client reads SafeNet eTokens (ICP-Brasil A3 tokens among
+        // them) through eTPKCS11.dll in System32, not the IDPrime module beside it (observed on
+        // a Windows 10 machine, 2026-11).
         &[
             "C:\\Program Files\\Smart Card Middleware\\bin\\idoPKCS.dll",
             "C:\\Windows\\System32\\asepkcs.dll",
             "C:\\Program Files\\SafeNet\\Authentication\\SAC\\x64\\IDPrimePKCS1164.dll",
             "C:\\Program Files (x86)\\Gemalto\\IDGo 800 PKCS#11\\IDPrimePKCS1164.dll",
+            "C:\\Windows\\System32\\eTPKCS11.dll",
             "C:\\Program Files\\OpenSC Project\\OpenSC\\pkcs11\\opensc-pkcs11.dll",
         ]
     } else {
@@ -400,6 +403,16 @@ pub fn candidate_modules() -> Vec<PathBuf> {
         ]
     };
     candidates.iter().map(PathBuf::from).filter(|p| p.is_file()).collect()
+}
+
+/// The module to use when the user hasn't chosen one: the first of [`candidate_modules`] that
+/// sees a certificate to sign with, else the first installed. Middleware from several vendors
+/// can sit side by side (SafeNet Authentication Client installs an IDPrime and an eToken
+/// module), and only one of them may see the card in the reader. Lists without a PIN.
+pub fn preferred_module() -> Option<PathBuf> {
+    let modules = candidate_modules();
+    let sees_a_signer = |m: &&PathBuf| identities(m).is_ok_and(|certs| certs.iter().any(|c| c.for_signing));
+    modules.iter().find(sees_a_signer).or(modules.first()).cloned()
 }
 
 #[cfg(test)]
@@ -448,5 +461,7 @@ mod tests {
         let src = include_str!("pkcs11.rs");
         let windows = src.find("Smart Card Middleware\\\\bin\\\\idoPKCS.dll").unwrap();
         assert!(windows < src.find("System32\\\\asepkcs.dll").unwrap());
+        // SafeNet eTokens are read by their own module, not the IDPrime one.
+        assert!(src.contains("\"C:\\\\Windows\\\\System32\\\\eTPKCS11.dll\","));
     }
 }

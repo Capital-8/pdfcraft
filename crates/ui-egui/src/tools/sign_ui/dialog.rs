@@ -164,7 +164,7 @@ fn configure(ui: &mut egui::Ui, app: &mut PdfCraftApp, t: &Tokens) -> bool {
         n.card = true;
         if n.module.is_empty() {
             n.module = if known_module.is_empty() {
-                sign::pkcs11::candidate_modules().first().map(|p| p.to_string_lossy().into_owned()).unwrap_or_default()
+                sign::pkcs11::preferred_module().map(|p| p.to_string_lossy().into_owned()).unwrap_or_default()
             } else {
                 known_module
             };

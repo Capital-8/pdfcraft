@@ -99,6 +99,68 @@ pub(crate) fn cert_json(c: &Certificate) -> Value {
     })
 }
 
+/// What [`Automation::card_status`] found about a card certificate, before any PIN is asked.
+#[cfg(not(target_arch = "wasm32"))]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum CardStatus {
+    /// Inside its validity dates, and its responders or CRLs say it isn't revoked.
+    Good,
+    /// Outside its validity dates.
+    Expired,
+    /// It, or a CA above it, is revoked.
+    Revoked,
+    /// Not revoked as far as could be found, but some revocation information couldn't be had.
+    Unknown,
+    /// Inside its validity dates; revocation not asked, as the session has no network access.
+    NotChecked,
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+impl CardStatus {
+    /// The name `sign_card_ids` reports.
+    fn name(self) -> &'static str {
+        match self {
+            CardStatus::Good => "good",
+            CardStatus::Expired => "expired",
+            CardStatus::Revoked => "revoked",
+            CardStatus::Unknown => "revocation_unknown",
+            CardStatus::NotChecked => "revocation_not_checked",
+        }
+    }
+}
+
+/// Whether `certificate` can sign at `now`. Its validity dates are always checked; its
+/// revocation only with `fetch` (the user allowed the network), by asking its OCSP responders or
+/// CRLs and those of the CAs above it (`issuers`, nearest first; missing ones come from AIA).
+#[cfg(not(target_arch = "wasm32"))]
+fn certificate_status(certificate: &Certificate, issuers: &[Certificate], now: sign::Time, fetch: Option<&dyn sign::ltv::Fetch>) -> CardStatus {
+    if !certificate.valid_at(now) {
+        return CardStatus::Expired;
+    }
+    let Some(fetch) = fetch else { return CardStatus::NotChecked };
+    let mut chain = vec![certificate.clone()];
+    chain.extend(issuers.iter().cloned());
+    let gathered = sign::ltv::gather(&chain, now, fetch);
+    match (gathered.revoked, gathered.problems.is_empty()) {
+        (true, _) => CardStatus::Revoked,
+        (false, true) => CardStatus::Good,
+        (false, false) => CardStatus::Unknown,
+    }
+}
+
+/// The certificate name a PIN prompt shows. ICP-Brasil e-CPF certificates append the holder's
+/// 11-digit taxpayer number to the common name (`NAME:12345678901`); the prompt masks it the
+/// way the Brazilian validator (ITI) prints it, `***.456.789-**`, as the screen may be shared.
+#[cfg(not(target_arch = "wasm32"))]
+fn prompt_name(name: &str) -> String {
+    match name.rsplit_once(':') {
+        Some((holder, id)) if id.len() == 11 && id.bytes().all(|b| b.is_ascii_digit()) => {
+            format!("{holder}:***.{}.{}-**", &id[3..6], &id[6..9])
+        }
+        _ => name.to_string(),
+    }
+}
+
 impl Automation {
     fn sig_json(&self, a: &Args, s: &SignatureInfo) -> Result<Value> {
         let doc = self.doc(a)?;
@@ -210,16 +272,22 @@ impl Automation {
         })
     }
 
-    /// The card driver the host chose, or the first known one installed.
+    /// The card driver the host chose, or the first known one installed that sees a card.
     #[cfg(not(target_arch = "wasm32"))]
     fn card_module(&self) -> Result<std::path::PathBuf> {
         match &self.signing.card_module {
             Some(m) => Ok(m.clone()),
-            None => sign::pkcs11::candidate_modules()
-                .into_iter()
-                .next()
+            None => sign::pkcs11::preferred_module()
                 .ok_or_else(|| failed("no smart card driver (PKCS #11 module) is installed; install the card's middleware, or start pdfcraft-cli with --card-module PATH")),
         }
+    }
+
+    /// [`certificate_status`] of a card certificate, with the card's CAs above it, now.
+    #[cfg(not(target_arch = "wasm32"))]
+    fn card_status(&self, card: &sign::pkcs11::TokenCertificate, certs: &[sign::pkcs11::TokenCertificate]) -> CardStatus {
+        let issuers = sign::pkcs11::issuers(&card.certificate, certs);
+        let fetch = self.signing.fetch.as_deref().map(|f| f as &dyn sign::ltv::Fetch);
+        certificate_status(&card.certificate, &issuers, time(self.session.now_secs()), fetch)
     }
 
     /// Log in to the card holding `reference` with a PIN asked of the user (none on a PIN-pad
@@ -233,6 +301,19 @@ impl Automation {
                 .iter()
                 .find(|c| sign::pkcs11::reference(&c.certificate) == reference)
                 .ok_or_else(|| bad(format!("{reference}: no such certificate on a card in the reader (see sign_card_ids)")))?;
+            // Before the PIN: a card often keeps a replaced certificate next to the new one.
+            match self.card_status(card, &certs) {
+                CardStatus::Expired => {
+                    return Err(failed(format!(
+                        "{reference}: the certificate is not valid now (valid {} to {}); pick another with sign_card_ids",
+                        card.certificate.not_before, card.certificate.not_after
+                    )));
+                }
+                CardStatus::Revoked => {
+                    return Err(failed(format!("{reference}: the certificate (or a CA above it) is revoked; pick another with sign_card_ids")));
+                }
+                CardStatus::Good | CardStatus::Unknown | CardStatus::NotChecked => {}
+            }
             if card.token.pin_final_try {
                 return Err(failed(
                     "one more wrong PIN would lock this card, so PdfCraft won't try; check or reset the PIN with the card vendor's tools",
@@ -244,7 +325,8 @@ impl Automation {
                 let ask = self.signing.pin.as_ref().ok_or_else(|| {
                     failed("the card PIN can only be typed at a terminal: run `pdfcraft-cli run` from one (this session can't ask for it)")
                 })?;
-                let pin = ask(&card.certificate.display_name()).filter(|p| !p.is_empty()).ok_or_else(|| failed("no card PIN was given"))?;
+                let pin =
+                    ask(&prompt_name(&card.certificate.display_name())).filter(|p| !p.is_empty()).ok_or_else(|| failed("no card PIN was given"))?;
                 Some(sign::pkcs11::Pin::from(pin))
             };
             sign::pkcs11::open(&module, reference, pin).map_err(failed)
@@ -267,6 +349,7 @@ impl Automation {
                         "id": sign::pkcs11::reference(&c.certificate),
                         "card": { "label": c.token.label, "model": c.token.model, "pin_pad": c.token.protected_authentication_path, "pin_locked": c.token.pin_locked },
                         "certificate": cert_json(&c.certificate),
+                        "status": self.card_status(c, &certs).name(),
                     })
                 })
                 .collect();
@@ -446,5 +529,49 @@ impl Automation {
         }
         self.session.set_trusted_certificates(certs);
         Ok(json!({ "trusted": self.session.trusted_certificates().iter().map(cert_json).collect::<Vec<_>>() }))
+    }
+}
+
+#[cfg(all(test, not(target_arch = "wasm32")))]
+mod tests {
+    use super::*;
+
+    struct Offline;
+    impl sign::ltv::Fetch for Offline {
+        fn get(&self, url: &str) -> std::result::Result<Vec<u8>, sign::SignError> {
+            Err(sign::SignError::Crypto(format!("{url}: offline")))
+        }
+        fn post(&self, url: &str, _: &str, _: &[u8]) -> std::result::Result<Vec<u8>, sign::SignError> {
+            Err(sign::SignError::Crypto(format!("{url}: offline")))
+        }
+    }
+
+    #[test]
+    fn a_card_certificate_is_checked_before_its_pin_is_asked() {
+        let key = PrivateKey::generate_p256().unwrap();
+        let from = 1_700_000_000;
+        let root = Certificate::self_signed(&Name::build("Root", "", "", "", ""), &key, time(from), 2, &[1]).unwrap();
+        let during = time(from + 86_400);
+        // Outside its dates it never signs, network or not.
+        assert_eq!(certificate_status(&root, &[], time(from - 86_400), None), CardStatus::Expired);
+        assert_eq!(certificate_status(&root, &[], time(from + 3 * 366 * 86_400), Some(&Offline)), CardStatus::Expired);
+        // Without the network revocation isn't asked; a self-signed certificate has none to ask.
+        assert_eq!(certificate_status(&root, &[], during, None), CardStatus::NotChecked);
+        assert_eq!(certificate_status(&root, &[], during, Some(&Offline)), CardStatus::Good);
+        // A certificate whose issuer and revocation can't be reached is not called good.
+        let mut leaf = root.clone();
+        leaf.issuer = Name::build("Some CA", "", "", "", "");
+        assert_eq!(certificate_status(&leaf, &[], during, Some(&Offline)), CardStatus::Unknown);
+        assert_eq!(CardStatus::Unknown.name(), "revocation_unknown");
+    }
+
+    #[test]
+    fn the_pin_prompt_masks_an_icp_brasil_taxpayer_number() {
+        assert_eq!(prompt_name("MARIA DA SILVA:12345678901"), "MARIA DA SILVA:***.456.789-**");
+        // Anything else is shown as it is: a company number (14 digits), a plain name, a role.
+        assert_eq!(prompt_name("ACME LTDA:12345678000190"), "ACME LTDA:12345678000190");
+        assert_eq!(prompt_name("Ada Lovelace"), "Ada Lovelace");
+        assert_eq!(prompt_name("Ada Lovelace (Signing)"), "Ada Lovelace (Signing)");
+        assert_eq!(prompt_name("x:1234567890a"), "x:1234567890a");
     }
 }
