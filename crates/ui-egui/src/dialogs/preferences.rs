@@ -789,6 +789,24 @@ fn card_fill_and_sign(ui: &mut egui::Ui, app: &mut PdfCraftApp, t: &Tokens, ctx:
     ctx.checkbox(ui, &mut app.flatten_fill_sign_on_save, tl!("Flatten Fill & Sign when saving"), t);
     ctx.label_secondary(ui, tl!("Text, marks and signatures become part of the page. Other comments stay editable."), t);
     ui.add_space(8.0);
+    // Signatures (Acrobat: Preferences ▸ Signatures ▸ Time Stamping and Verification).
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        ctx.label(ui, tl!("Signatures"), theme::semibold(12.5), t.text);
+        ui.horizontal(|ui| {
+            let label = ctx.label_primary(ui, tl!("Timestamp server"), t);
+            ui.add(crate::widgets::line(&mut app.timestamp_server).desired_width(260.0).hint_text("http://…").char_limit(512)).labelled_by(label.id);
+        });
+        ctx.checkbox(ui, &mut app.embed_ltv, tl!("Include revocation information when signing (LTV)"), t);
+        ctx.label_secondary(
+            ui,
+            tl!(
+                "Signing then goes online: the timestamp server receives a hash of the signature, and the certificate authorities are asked whether the certificates are revoked. With both, signatures are PAdES B-LTA."
+            ),
+            t,
+        );
+        ui.add_space(8.0);
+    }
     date_format(ui, app, t, ctx);
 }
 

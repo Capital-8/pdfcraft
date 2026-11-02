@@ -125,8 +125,8 @@ impl PdfCraftApp {
             "signature_image": match &self.signature { Some(s @ fill_sign::SavedSig::Image(_)) => Some(s), _ => None },
             "initials": self.initials,
             "sign_graphic": self.sign_graphic,
-            // macOS Keychain and Windows store identities are read from their OS key stores each time.
-            "digital_ids": self.digital_ids.iter().filter(|e| !e.path.starts_with("keychain:") && !e.path.starts_with("windows:")).collect::<Vec<_>>(),
+            // macOS Keychain, Windows store and smart card identities are read from their key stores each time.
+            "digital_ids": self.digital_ids.iter().filter(|e| !sign_ui::from_key_store(&e.path)).collect::<Vec<_>>(),
             "trusted": trusted,
             "custom_stamps": stamps_ui::encode(&self.custom_stamps),
             "javascript": self.session.javascript(),
@@ -143,6 +143,9 @@ impl PdfCraftApp {
         v["fill_text_color"] = serde_json::json!(self.fill_text_color);
         v["redact_prefs"] = self.redact_defaults.to_json();
         v["pinned_tools"] = serde_json::json!(self.pinned_tools);
+        v["pkcs11_module"] = serde_json::Value::String(self.pkcs11_module.clone());
+        v["timestamp_server"] = serde_json::Value::String(self.timestamp_server.clone());
+        v["embed_ltv"] = serde_json::Value::Bool(self.embed_ltv);
         // Set outside json! above, which is at serde_json's macro recursion limit.
         v["hide_empty_highlight_hover"] = serde_json::Value::Bool(self.comment_prefs.hide_empty_highlight_hover);
         v["show_page_edge_shadows"] = self.show_page_edge_shadows.into();
@@ -382,6 +385,15 @@ impl PdfCraftApp {
         self.sign_graphic = serde_json::from_value(v["sign_graphic"].clone()).unwrap_or_default();
         if let Ok(ids) = serde_json::from_value::<Vec<DigitalIdEntry>>(v["digital_ids"].clone()) {
             self.digital_ids = ids;
+        }
+        if let Some(m) = v["pkcs11_module"].as_str() {
+            self.pkcs11_module = m.to_string();
+        }
+        if let Some(url) = v["timestamp_server"].as_str() {
+            self.timestamp_server = url.to_string();
+        }
+        if let Some(on) = v["embed_ltv"].as_bool() {
+            self.embed_ltv = on;
         }
         self.custom_stamps = stamps_ui::decode(&v["custom_stamps"]);
         self.custom_actions = actions_ui::decode(&v["actions"]);
