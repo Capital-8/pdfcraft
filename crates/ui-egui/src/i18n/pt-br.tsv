@@ -2921,3 +2921,7 @@ theme	Appearance	Aparência
 	Signing was cancelled; nothing was saved.	A assinatura foi cancelada; nada foi salvo.
 	Signed and saved to {path}, without some revocation information: {problems}	Assinado e salvo em {path}, sem algumas informações de revogação: {problems}
 	The document wasn't signed: {e}	O documento não foi assinado: {e}
+	Not valid now (valid {from} to {to})	Fora da validade (válido de {from} a {to})
+	Revoked by its certificate authority	Revogado pela autoridade certificadora
+	The certificates on the card are not valid now.	Os certificados do cartão estão fora da validade.
+	Checking whether the certificate is revoked… Try again in a moment.	Verificando se o certificado foi revogado… Tente de novo em instantes.

@@ -331,7 +331,99 @@ fn entry_unusable(u: &sign::windows::Unusable) -> DigitalIdEntry {
     }
 }
 
+/// [`entry_for`] for a key store certificate, greyed when it is outside its validity dates at
+/// `now` (seconds since 1970): it can't sign, so it is never preselected nor its PIN asked.
+fn key_store_entry(path: &str, c: &Certificate, now: i64) -> DigitalIdEntry {
+    let mut entry = entry_for(path, c);
+    if !c.valid_at(sign::Time::from_unix(now)) {
+        entry.unusable = Some(crate::i18n::fmt(
+            tl!("Not valid now (valid {from} to {to})"),
+            &[("from", &format!("{:04}.{:02}.{:02}", c.not_before.year, c.not_before.month, c.not_before.day)), ("to", &entry.expires)],
+        ));
+    }
+    entry
+}
+
+/// The order to list key store certificates in: each holder where they first appear, and
+/// their certificates newest first. A card or store often keeps a replaced (and revoked)
+/// certificate next to its successor, and the first usable entry is the one preselected.
+fn newest_first(certs: &[&Certificate]) -> Vec<usize> {
+    let holder = |i: usize| certs.iter().position(|c| c.subject.raw == certs[i].subject.raw).unwrap_or(i);
+    let mut order: Vec<usize> = (0..certs.len()).collect();
+    order.sort_by_key(|&i| (holder(i), std::cmp::Reverse(certs[i].not_before)));
+    order
+}
+
+/// Revocation checks of the listed key store certificates, run when signing goes online
+/// (Preferences ▸ Signatures), so a revoked one is greyed before its PIN is asked.
+pub(crate) struct CertificateChecks {
+    /// The entries (by path) being checked.
+    pending: Vec<String>,
+    /// The paths found revoked, sent once all are checked.
+    #[cfg(not(target_arch = "wasm32"))]
+    rx: std::sync::mpsc::Receiver<Vec<String>>,
+}
+
 impl PdfCraftApp {
+    /// Ask the certificate authorities, on a thread, whether any of `certs` (an entry's path,
+    /// its certificate and the issuers known for it) is revoked. Only when signing goes online
+    /// anyway: the user has allowed the network then.
+    fn check_revocation(&mut self, certs: Vec<(String, Certificate, Vec<Certificate>)>) {
+        let Some(fetch) = self.http.clone().filter(|_| self.signs_online()) else { return };
+        if certs.is_empty() {
+            return;
+        }
+        let pending: Vec<String> = certs.iter().map(|(path, ..)| path.clone()).collect();
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let now = sign::Time::from_unix(self.session.now_secs());
+            let (tx, rx) = std::sync::mpsc::channel();
+            let ctx = self.ctx.clone();
+            std::thread::spawn(move || {
+                let revoked = certs
+                    .into_iter()
+                    .filter(|(_, c, issuers)| {
+                        let mut chain = vec![c.clone()];
+                        chain.extend(issuers.iter().cloned());
+                        sign::ltv::gather(&chain, now, &*fetch).revoked
+                    })
+                    .map(|(path, ..)| path)
+                    .collect();
+                // The receiver may be gone (the app quit): nothing to report to then.
+                let _ = tx.send(revoked);
+                if let Some(ctx) = ctx {
+                    ctx.request_repaint();
+                }
+            });
+            self.certificate_checks = Some(CertificateChecks { pending, rx });
+        }
+        #[cfg(target_arch = "wasm32")]
+        let _ = (fetch, pending);
+    }
+
+    /// Grey the certificates found revoked (each frame), and move the dialog's selection off one.
+    pub(crate) fn poll_certificate_checks(&mut self) {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let Some(checks) = &self.certificate_checks else { return };
+            let revoked = match checks.rx.try_recv() {
+                Ok(revoked) => revoked,
+                Err(std::sync::mpsc::TryRecvError::Empty) => return,
+                Err(std::sync::mpsc::TryRecvError::Disconnected) => Vec::new(),
+            };
+            self.certificate_checks = None;
+            for e in self.digital_ids.iter_mut().filter(|e| revoked.contains(&e.path)) {
+                e.unusable = Some(tl!("Revoked by its certificate authority").to_string());
+            }
+            let ids = &self.digital_ids;
+            if let Some(d) = self.sign_draft.as_mut()
+                && d.selected.is_some_and(|i| ids.get(i).is_none_or(|e| e.unusable.is_some()))
+            {
+                d.selected = ids.iter().position(|e| e.unusable.is_none());
+            }
+        }
+    }
+
     /// Export certificate: write `c` as PEM into a chosen folder, named after its subject.
     pub(crate) fn export_certificate(&mut self, c: &Certificate) {
         let name = format!("{}.cer", crate::files::attachment_file_name(&c.display_name()));
@@ -356,6 +448,11 @@ impl PdfCraftApp {
     /// List OS key store signing identities (after the file-based IDs).
     fn refresh_os_key_store_ids(&mut self) {
         self.digital_ids.retain(|e| !from_key_store(&e.path));
+        // Windows store and card certificates, for the revocation check.
+        #[cfg_attr(target_arch = "wasm32", allow(unused_mut))]
+        let mut listed: Vec<(String, Certificate, Vec<Certificate>)> = Vec::new();
+        #[cfg_attr(target_arch = "wasm32", allow(unused_variables))]
+        let now = self.session.now_secs();
         #[cfg(target_os = "macos")]
         if self.os_key_store_ids {
             match sign::keychain::identities(None) {
@@ -376,8 +473,14 @@ impl PdfCraftApp {
         if self.os_key_store_ids {
             match sign::windows::list() {
                 Ok(listing) => {
-                    for id in &listing.ids {
-                        self.digital_ids.push(entry_for(&sign::windows::reference(&id.certificate), &id.certificate));
+                    let certs: Vec<&Certificate> = listing.ids.iter().map(|id| &id.certificate).collect();
+                    for i in newest_first(&certs) {
+                        let id = &listing.ids[i];
+                        let entry = key_store_entry(&sign::windows::reference(&id.certificate), &id.certificate, now);
+                        if entry.unusable.is_none() {
+                            listed.push((entry.path.clone(), id.certificate.clone(), id.chain.clone()));
+                        }
+                        self.digital_ids.push(entry);
                     }
                     // Certificates without a private key aren't identities; the rest are shown
                     // greyed with why they can't sign (issue #179).
@@ -393,8 +496,15 @@ impl PdfCraftApp {
         if self.os_key_store_ids && !self.pkcs11_module.is_empty() {
             match sign::pkcs11::identities(std::path::Path::new(&self.pkcs11_module)) {
                 Ok(ids) => {
-                    for c in ids.iter().filter(|c| c.for_signing) {
-                        self.digital_ids.push(entry_for(&sign::pkcs11::reference(&c.certificate), &c.certificate));
+                    let signers: Vec<_> = ids.iter().filter(|c| c.for_signing).collect();
+                    let certs: Vec<&Certificate> = signers.iter().map(|c| &c.certificate).collect();
+                    for i in newest_first(&certs) {
+                        let c = &signers[i].certificate;
+                        let entry = key_store_entry(&sign::pkcs11::reference(c), c, now);
+                        if entry.unusable.is_none() {
+                            listed.push((entry.path.clone(), c.clone(), sign::pkcs11::issuers(c, &ids)));
+                        }
+                        self.digital_ids.push(entry);
                     }
                 }
                 Err(e) => self.notify_fmt("The smart card's digital IDs couldn't be listed: {e}", &[("e", &e.to_string())]),
@@ -402,6 +512,7 @@ impl PdfCraftApp {
         }
         // Named IDs first, those named by a bare GUID last (stable, so the rest keep their order).
         self.digital_ids.sort_by_key(|e| is_guid(&e.name));
+        self.check_revocation(listed);
     }
 
     /// Add a digital ID file to the list (or select it if it's there).
@@ -494,12 +605,36 @@ impl PdfCraftApp {
         {
             let ids = sign::pkcs11::identities(std::path::Path::new(&module)).map_err(|e| e.to_string())?;
             self.pkcs11_module = module;
-            let mut first = None;
-            for c in ids.iter().filter(|c| c.for_signing) {
-                let i = self.add_digital_id(&sign::pkcs11::reference(&c.certificate), &c.certificate);
-                first.get_or_insert(i);
+            let signers: Vec<_> = ids.iter().filter(|c| c.for_signing).collect();
+            if signers.is_empty() {
+                return Err(tl!("No signing certificate was found on a card. Is the card in the reader?").to_string());
             }
-            first.ok_or_else(|| tl!("No signing certificate was found on a card. Is the card in the reader?").to_string())
+            let certs: Vec<&Certificate> = signers.iter().map(|c| &c.certificate).collect();
+            let now = self.session.now_secs();
+            let (mut first, mut listed) = (None, Vec::new());
+            for i in newest_first(&certs) {
+                let c = &signers[i].certificate;
+                let entry = key_store_entry(&sign::pkcs11::reference(c), c, now);
+                let usable = entry.unusable.is_none();
+                if usable {
+                    listed.push((entry.path.clone(), c.clone(), sign::pkcs11::issuers(c, &ids)));
+                }
+                let at = match self.digital_ids.iter().position(|e| e.path == entry.path) {
+                    Some(at) => {
+                        self.digital_ids[at] = entry;
+                        at
+                    }
+                    None => {
+                        self.digital_ids.push(entry);
+                        self.digital_ids.len() - 1
+                    }
+                };
+                if usable {
+                    first.get_or_insert(at);
+                }
+            }
+            self.check_revocation(listed);
+            first.ok_or_else(|| tl!("The certificates on the card are not valid now.").to_string())
         }
         #[cfg(target_arch = "wasm32")]
         {
@@ -518,6 +653,10 @@ impl PdfCraftApp {
         let Some((_, doc_id)) = self.active_ids() else { return Err("no document".into()) };
         let mut d = self.sign_draft.clone().ok_or("nothing to sign")?;
         let entry = d.selected.and_then(|i| self.digital_ids.get(i)).filter(|e| e.unusable.is_none()).cloned().ok_or("Choose a digital ID.")?;
+        // Its PIN only once it is known not to be revoked.
+        if self.certificate_checks.as_ref().is_some_and(|c| c.pending.contains(&entry.path)) {
+            return Err("Checking whether the certificate is revoked… Try again in a moment.".into());
+        }
         let id = if entry.path.starts_with("keychain:") {
             keychain_id(&entry.path)?
         } else if entry.path.starts_with("windows:") {
@@ -851,6 +990,23 @@ mod tests {
         assert!(super::is_guid("fb7b80d3-df34-4c01-8cfe-81ce21440a78"));
         assert!(!super::is_guid("JANE DOE (SIGNING)"));
         assert!(!super::is_guid("fb7b80d3-df34-4c01-8cfe-81ce21440a7"));
+    }
+
+    #[test]
+    fn a_replaced_key_store_certificate_is_listed_after_its_successor_and_greyed_once_expired() {
+        let key = PrivateKey::generate_p256().unwrap();
+        let cert =
+            |name: &str, from: i64| Certificate::self_signed(&Name::build(name, "", "", "", ""), &key, sign::Time::from_unix(from), 1, &[1]).unwrap();
+        let (day, start) = (86_400, 1_700_000_000);
+        let (old, other, new) = (cert("Ada", start), cert("Bob", start + day), cert("Ada", start + 200 * day));
+        // Each holder where they first appear, their newest certificate first.
+        assert_eq!(newest_first(&[&old, &other, &new]), [2, 0, 1]);
+        assert_eq!(newest_first(&[&other, &old, &new]), [0, 2, 1]);
+        // In its dates it can sign; after them it is greyed with them, and never preselected.
+        assert_eq!(key_store_entry("pkcs11:aa", &new, start + 201 * day).unusable, None);
+        let expired = key_store_entry("pkcs11:aa", &old, start + 400 * day);
+        assert!(expired.unusable.as_deref().is_some_and(|r| r.contains(&expired.expires)), "{expired:?}");
+        assert_eq!(SignDraft::new(0, None, None, None, &[expired, entry_for("x.p12", &other)]).selected, Some(1));
     }
 
     use super::*;

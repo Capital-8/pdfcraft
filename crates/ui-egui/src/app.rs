@@ -215,6 +215,7 @@ impl PdfCraftApp {
             embed_ltv: false,
             http: None,
             online_signing: None,
+            certificate_checks: None,
             cert_viewer: None,
             space_audit: Vec::new(),
             space_audit_of: None,
@@ -583,6 +584,7 @@ impl eframe::App for PdfCraftApp {
         }
         self.poll_updates();
         self.poll_online_signing();
+        self.poll_certificate_checks();
         self.poll_print();
         // Shortcuts deferred last frame: the text field has taken that frame's typing since.
         let deferred = std::mem::take(&mut self.deferred_commands);

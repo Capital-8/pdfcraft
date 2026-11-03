@@ -524,6 +524,8 @@ pub struct PdfCraftApp {
     pub http: Option<std::sync::Arc<dyn sign_ui::Fetch + Send + Sync>>,
     /// A signing that is waiting for a timestamp server or revocation services.
     pub(crate) online_signing: Option<sign_ui::OnlineSigning>,
+    /// Revocation checks of the listed key store certificates, while signing goes online.
+    pub(crate) certificate_checks: Option<sign_ui::CertificateChecks>,
     pub cert_viewer: Option<sign_ui::CertViewer>,
     /// The last space audit.
     pub space_audit: Vec<pdfcraft_engine::optimize::SpaceUse>,
