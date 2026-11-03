@@ -873,6 +873,16 @@ pub fn tools() -> Vec<ToolDef> {
                 }),
                 &["doc", "id", "out"],
             )),
+        t("timestamp_document", "Add a document timestamp", "Append an RFC 3161 document timestamp (/ETSI.RFC3161) over the whole file as it is now, from timestamp_server, and save the file to `out` (Acrobat: Timestamp; the document then shows the saved file). It shows that the file existed unchanged at that time and, after a signature with LTV information, extends it to PAdES B-LTA; earlier signatures stay valid. Needs network access, which only the user can grant (pdfcraft-cli --network).")
+            .cmd("sign.timestamp")
+            .with(schema(
+                json!({
+                    "doc": doc(),
+                    "timestamp_server": { "type": "string", "description": "An RFC 3161 timestamp server URL, e.g. the one your certificate authority runs." },
+                    "out": { "type": "string", "description": "Where to save the timestamped document." },
+                }),
+                &["doc", "timestamp_server", "out"],
+            )),
         t("sign_trust", "Trust certificates", "Add certificates (.cer/.crt/.pem/.der, a .p7b/.p7c bundle, or the certificates in a .p12 with `password`) to the trusted certificates used to validate signatures, or clear the list (clear: true). Every open document is revalidated. Returns the trusted list.").with(schema(
             json!({ "paths": { "type": "array", "items": { "type": "string" } }, "password": { "type": "string" }, "clear": { "type": "boolean" } }),
             &[],

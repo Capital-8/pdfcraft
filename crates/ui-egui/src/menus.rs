@@ -217,6 +217,7 @@ const SIGN: &[&str] = &[
     "sign.digital",
     "sign.certify",
     "sign.certify_invisible",
+    "sign.timestamp",
     "form.add.signature",
     SEP,
     "sign.validate",

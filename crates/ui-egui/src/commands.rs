@@ -646,6 +646,7 @@ impl PdfCraftApp {
                 let page = active.map_or(0, |i| self.views[i].current);
                 self.start_signing(page, None, None, Some(2));
             }
+            "sign.timestamp" => self.start_document_timestamp(),
             "sign.validate" => {
                 let certs = self.session.trusted_certificates().to_vec();
                 self.apply_trusted_certificates(certs);

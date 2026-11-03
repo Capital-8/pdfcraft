@@ -2925,3 +2925,7 @@ theme	Appearance	Aparência
 	Revoked by its certificate authority	Revogado pela autoridade certificadora
 	The certificates on the card are not valid now.	Os certificados do cartão estão fora da validade.
 	Checking whether the certificate is revoked… Try again in a moment.	Verificando se o certificado foi revogado… Tente de novo em instantes.
+	Add a document timestamp	Adicionar carimbo de data/hora ao documento
+	Set a timestamp server in Preferences > Signatures to add a timestamp.	Defina um servidor de carimbo do tempo em Preferências > Assinaturas para adicionar um carimbo.
+	Timestamps need the desktop app.	Os carimbos de data/hora precisam do aplicativo para desktop.
+	Save the document first: it was repaired when it was opened, or has changes that rewrite the whole file.	Salve o documento primeiro: ele foi reparado ao ser aberto ou tem alterações que regravam o arquivo inteiro.

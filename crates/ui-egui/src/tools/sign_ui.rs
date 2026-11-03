@@ -817,6 +817,97 @@ impl PdfCraftApp {
         }
     }
 
+    /// Certificates ▸ Timestamp (Acrobat: Timestamp): a document timestamp from the server in
+    /// Preferences ▸ Signatures over the document as it is, saved like a signing (Save As).
+    /// Earlier signatures stay valid; after one with LTV information the file becomes B-LTA.
+    pub(crate) fn start_document_timestamp(&mut self) {
+        let Some((_, doc_id)) = self.active_ids() else { return };
+        let server = self.timestamp_server.trim().to_string();
+        if server.is_empty() {
+            self.notify_tr("Set a timestamp server in Preferences > Signatures to add a timestamp.");
+            return;
+        }
+        if self.http.is_none() {
+            self.notify_tr("Timestamps need the desktop app.");
+            return;
+        }
+        // What's typed in a form field is covered too, as when signing (#166).
+        if !self.commit_form_typing() {
+            return;
+        }
+        // The timestamp can't survive a rewrite of the whole file: ask for a save first, before
+        // asking where to save the timestamped copy.
+        if self.session.signing_input(doc_id, SignOptions::default()).is_ok_and(|(cos, _)| cos.reconstructed() || cos.full_save_required()) {
+            self.notify_tr("Save the document first: it was repaired when it was opened, or has changes that rewrite the whole file.");
+            return;
+        }
+        let stamp = move |app: &mut Self, path: PathBuf| -> Result<(), String> {
+            if !app.commit_typing_in(doc_id) {
+                return Err(String::new());
+            }
+            app.start_timestamping(doc_id, path, server)
+        };
+        let name = self.session.get(doc_id).map(|d| d.name.clone()).unwrap_or_default();
+        let stem = name.trim_end_matches(".pdf").trim_end_matches(".PDF").to_string();
+        match self.save_override.clone() {
+            Some(p) => {
+                if let Err(e) = stamp(self, PathBuf::from(p))
+                    && !e.is_empty()
+                {
+                    self.notify(e);
+                }
+            }
+            #[cfg(not(target_arch = "wasm32"))]
+            None => {
+                let folder = self.session.get(doc_id).and_then(|d| d.path.clone());
+                let dialog = rfd::AsyncFileDialog::new().add_filter("PDF", &["pdf"]).set_file_name(format!("{stem}_timestamped.pdf"));
+                let dialog = crate::editing::in_document_folder(dialog, folder.as_deref());
+                self.ask_one(crate::pickers::Ask::Save(dialog), Some(doc_id), move |app, path| {
+                    if let Err(e) = stamp(app, path)
+                        && !e.is_empty()
+                    {
+                        app.notify(e);
+                    }
+                });
+            }
+            #[cfg(target_arch = "wasm32")]
+            None => {
+                let _ = (stem, stamp);
+            }
+        }
+    }
+
+    /// Ask `server` for a document timestamp on a thread, behind the signing modal; the file is
+    /// saved when it's done ([`PdfCraftApp::poll_online_signing`]).
+    fn start_timestamping(&mut self, doc: pdfcraft_engine::DocId, path: PathBuf, server: String) -> Result<(), String> {
+        let Some(fetch) = self.http.clone() else { return Err(tl!("Timestamps need the desktop app.").to_string()) };
+        let (cos, opts) = self.session.signing_input(doc, SignOptions::default()).map_err(|e| e.to_string())?;
+        // A timestamp has no appearance: the remembered signature graphic stays as it is.
+        let choice = self.sign_graphic.clone();
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            let (tx, rx) = std::sync::mpsc::channel();
+            let ctx = self.ctx.clone();
+            let url = server.clone();
+            std::thread::spawn(move || {
+                let tsa = sign::ltv::HttpTsa::new(&url, &*fetch);
+                let stamped = sign::timestamp_document(&cos, &tsa, &opts.date).map(|bytes| sign::ltv::Signed { bytes, problems: Vec::new() });
+                // The receiver may be gone (the app quit): nothing to report to then.
+                let _ = tx.send(stamped.map_err(|e| e.to_string()));
+                if let Some(ctx) = ctx {
+                    ctx.request_repaint();
+                }
+            });
+            self.online_signing = Some(OnlineSigning { doc, path, choice, server, rx });
+            Ok(())
+        }
+        #[cfg(target_arch = "wasm32")]
+        {
+            let _ = (cos, opts, fetch, path, choice, server);
+            Err("timestamps need the desktop app".into())
+        }
+    }
+
     /// Save a finished online signing (each frame).
     pub(crate) fn poll_online_signing(&mut self) {
         #[cfg(not(target_arch = "wasm32"))]

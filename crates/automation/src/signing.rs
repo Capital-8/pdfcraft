@@ -464,6 +464,34 @@ impl Automation {
         }))
     }
 
+    /// Acrobat's Timestamp: a document timestamp from `timestamp_server` over the file as it is
+    /// now, saved to `out`. Earlier signatures stay valid; after one with LTV information the
+    /// file becomes PAdES B-LTA.
+    pub(crate) fn timestamp_document(&mut self, a: &Args) -> Result<Value> {
+        let doc_id = self.doc(a)?.id;
+        let server = a.str("timestamp_server")?.trim().to_string();
+        if server.is_empty() {
+            return Err(bad("timestamp_server must not be empty"));
+        }
+        let out = self.resolve(a.str("out")?, true)?;
+        let fetch =
+            self.signing.fetch.clone().ok_or_else(|| {
+                failed("timestamp_server needs network access, which this session doesn't have (start pdfcraft-cli with --network)")
+            })?;
+        let tsa = sign::ltv::HttpTsa::new(&server, &*fetch);
+        let stamped = self.session.timestamp_document(doc_id, &tsa, String::new()).map_err(failed)?;
+        write_atomic(&out, &stamped)?;
+        let path = out.to_string_lossy().into_owned();
+        self.session.mark_signed(doc_id, stamped.clone(), Some(path.clone())).map_err(failed)?;
+        let doc = self.doc(a)?;
+        let newest = doc.signatures.iter().filter(|s| s.signed).max_by_key(|s| s.revision).cloned();
+        Ok(json!({
+            "path": path,
+            "bytes": stamped.len(),
+            "timestamp": newest.map(|s| self.sig_json(a, &s)).transpose()?,
+        }))
+    }
+
     /// `{"image": path}` (PNG or JPEG), `{"text": name}` (typed in the script font) or
     /// `{"strokes": [[[x, y], …], …]}` (y up; the drawing pad is 1 wide).
     fn signature_graphic(&self, g: &Value) -> Result<sign::Graphic> {

@@ -351,6 +351,13 @@ pub fn timestamp_document(doc: &Document, tsa: &dyn crate::timestamp::TimestampA
             "the document's security settings don't allow signing; open it with the permissions password to timestamp it".into(),
         ));
     }
+    // Nothing refers to the timestamp, so a full rewrite (a file repaired when it was opened, a
+    // redaction) would leave it out: save the document first.
+    if doc.reconstructed() || doc.full_save_required() {
+        return Err(SignError::Pdf(
+            "the document was repaired when it was opened, or has changes that rewrite the whole file: save it, then add the timestamp".into(),
+        ));
+    }
     let mut doc = doc.clone();
     // What the user removed again before this (a cleared redaction mark) stays out of the file,
     // as in a save. Nothing refers to the timestamp either, so the leftovers go first and the

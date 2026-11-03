@@ -1873,7 +1873,7 @@ milestone = "M3"
 status = "shipped"
 commands = []
 tools = []
-evidence = ["crates/ui-egui/tests/it/perf.rs::scrolling_a_500_page_document_stays_within_the_frame_budget", "crates/ui-egui/tests/it/perf.rs::panels_with_hundreds_of_items_stay_within_the_frame_budget"]
+evidence = ["crates/ui-egui/tests/perf.rs::scrolling_a_500_page_document_stays_within_the_frame_budget", "crates/ui-egui/tests/perf.rs::panels_with_hundreds_of_items_stay_within_the_frame_budget"]
 notes = "UI work per frame ~6 ms scrolling 500 pages (comments panel with 500 cards ~6 ms, thumbnails ~2 ms); rendering is off-thread and tiled"
 
 # ==================================================================================================
@@ -6238,11 +6238,15 @@ title = "Add a document timestamp (RFC 3161)"
 area = "H"
 tier = "P1"
 milestone = "M9"
-status = "partial"
-commands = []
-tools = []
-evidence = ["crates/sign/tests/it/pdf.rs::a_document_timestamp_covers_the_file_and_validates"]
-notes = "timestamp_document appends a standalone /ETSI.RFC3161 signature dictionary over the whole file; validation discovers and verifies these (imprint, token signature, TSA cert validity) and reports the trusted time. Missing: automation tool and timestamp-server configuration (transport is caller-injected)."
+status = "shipped"
+commands = ["sign.timestamp"]
+tools = ["timestamp_document"]
+evidence = [
+  "crates/sign/tests/it/pdf.rs::a_document_timestamp_covers_the_file_and_validates",
+  "crates/automation/tests/it/automation.rs::a_document_timestamp_is_added_only_with_the_network_and_keeps_signatures_valid",
+  "crates/ui-egui/tests/it/signing.rs::the_timestamp_tool_adds_a_document_timestamp_from_the_server_in_preferences",
+]
+notes = "timestamp_document appends a standalone /ETSI.RFC3161 signature dictionary over the whole file; validation discovers and verifies these (imprint, token signature, TSA cert validity) and reports the trusted time. Certificates > Timestamp (sign.timestamp) asks the server set in Preferences > Signatures on a thread and saves like a signing; the timestamp_document tool does the same with timestamp_server, only with pdfcraft-cli --network. Earlier signatures stay valid; after an LTV signature the file is B-LTA."
 
 [[feature]]
 id = "sign.timestamp-servers"

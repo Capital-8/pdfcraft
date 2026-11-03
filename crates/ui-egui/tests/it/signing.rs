@@ -921,3 +921,49 @@ fn signing_online_without_a_network_says_so_and_saves_nothing() {
     assert!(error.contains("Preferences > Signatures"), "{error:?}");
     assert!(!out.exists());
 }
+
+#[test]
+fn the_timestamp_tool_adds_a_document_timestamp_from_the_server_in_preferences() {
+    let dir = dir();
+    let signed = dir.join("contract_signed.pdf");
+    let stamped = dir.join("contract_timestamped.pdf");
+    let mut h = harness(dir);
+    // Without a server set in Preferences it says where to set one, and saves nothing.
+    assert!(h.state_mut().execute("sign.timestamp"));
+    h.run_steps(2);
+    assert!(h.state().toast.as_ref().is_some_and(|(m, _)| m.contains("Preferences > Signatures")), "{:?}", h.state().toast);
+    assert!(!signed.exists());
+    let tsa =
+        pdfcraft_engine::sign::pkcs12::open(&std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/../sign/tests/data/rsa-aes.p12")).unwrap(), "test")
+            .unwrap();
+    h.state_mut().timestamp_server = "http://tsa.test/".into();
+    h.state_mut().http = Some(std::sync::Arc::new(FakeTsa(tsa)));
+    // The fixture is repaired when it opens: the rewrite a save makes would drop the timestamp.
+    assert!(h.state_mut().execute("sign.timestamp"));
+    h.run_steps(2);
+    assert!(h.state().toast.as_ref().is_some_and(|(m, _)| m.contains("Save the document first")), "{:?}", h.state().toast);
+    assert!(!signed.exists());
+    // Signed (and so saved), it takes a document timestamp over the signature.
+    certify_with_file_id(&mut h);
+    let wait = |h: &mut Harness<'static, PdfCraftApp>, path: &std::path::Path| {
+        for _ in 0..200 {
+            h.run_steps(1);
+            if path.exists() {
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        h.run_steps(2);
+    };
+    wait(&mut h, &signed);
+    assert!(signed.exists());
+    h.state_mut().save_override = Some(stamped.to_string_lossy().into_owned());
+    assert!(h.state_mut().execute("sign.timestamp"));
+    wait(&mut h, &stamped);
+    assert!(stamped.exists(), "{:?}", h.state().toast);
+    let s = h.state();
+    let doc = s.session.get(s.views[0].id).unwrap();
+    let signatures: Vec<_> = doc.signatures.iter().filter(|x| x.signed).collect();
+    assert_eq!(signatures.len(), 2, "{:?}", doc.signatures);
+    assert!(signatures.iter().any(|x| format!("{:?}", x.sub_filter).contains("ETSI.RFC3161")));
+}

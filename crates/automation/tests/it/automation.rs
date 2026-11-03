@@ -10588,3 +10588,30 @@ fn signing_online_and_with_cards_takes_only_what_the_user_allowed() {
     assert_eq!(r["level"], "B-T", "{r}");
     assert_eq!(r["signature"]["timestamp"], true, "{r}");
 }
+
+#[test]
+fn a_document_timestamp_is_added_only_with_the_network_and_keeps_signatures_valid() {
+    let dir = workdir("document-timestamp");
+    let mut a = auto(&dir);
+    ok(&mut a, "sign_id_create", json!({ "name": "Ada Lovelace", "key": "p256", "password": "secret12", "path": "ada.p12" }));
+    let doc = ok(&mut a, "doc_open", json!({ "path": "a.pdf" }))["doc"].as_u64().unwrap();
+    let stamp = json!({ "doc": doc, "timestamp_server": "http://tsa.test/", "out": "stamped.pdf" });
+    let r = a.call("timestamp_document", &stamp);
+    assert!(matches!(&r, Err(ToolError::Failed(m)) if m.contains("--network")), "{r:?}");
+    let r = a.call("timestamp_document", &json!({ "doc": doc, "timestamp_server": " ", "out": "stamped.pdf" }));
+    assert!(matches!(&r, Err(ToolError::InvalidArgs(_))), "{r:?}");
+    assert!(!dir.join("stamped.pdf").exists());
+
+    let tsa = pdfcraft_engine::sign::pkcs12::open(&std::fs::read(dir.join("ada.p12")).unwrap(), "secret12").unwrap();
+    let mut a = auto(&dir).with_network(std::sync::Arc::new(FakeTsa(tsa)));
+    let doc = ok(&mut a, "doc_open", json!({ "path": "a.pdf" }))["doc"].as_u64().unwrap();
+    ok(&mut a, "sign_document", json!({ "doc": doc, "id": "ada.p12", "password": "secret12", "out": "signed.pdf" }));
+    let r = ok(&mut a, "timestamp_document", json!({ "doc": doc, "timestamp_server": "http://tsa.test/", "out": "stamped.pdf" }));
+    assert_eq!(r["timestamp"]["sub_filter"], "ETSI.RFC3161", "{r}");
+    assert_eq!(r["timestamp"]["modification"], "none", "{r}");
+    assert!(dir.join("stamped.pdf").exists());
+    // The signature before it is intact: the timestamp only adds to the file.
+    let listed = ok(&mut a, "sign_list", json!({ "doc": doc }));
+    assert_eq!(listed["signed"], 2, "{listed}");
+    assert!(listed["signatures"].as_array().unwrap().iter().all(|s| s["modification"] != "disallowed"), "{listed}");
+}
