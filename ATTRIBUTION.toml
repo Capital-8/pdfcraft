@@ -1,295 +1,14 @@
-[[asset]]
-path = "crates/ui-egui/src/i18n/el.tsv"
-title = "Greek interface translation catalog"
-author = "Camthalion77 and contributors"
-source = "Contributor-original: clean-room translations of PdfCraft English UI labels; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Greek UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
 # ATTRIBUTION.toml: one entry per asset (AGENTS.md §1). The source of truth for provenance and licences.
 # ATTRIBUTION.md is generated from this file: `cargo xtask assets --write`. Checked by `cargo xtask assets` (part of `xtask ci`).
 #
 # [[asset]]    a file in this repository (committed or vendored); `sha256` must match the file.
-#              Translation catalogs (kind = "translation", crates/ui-egui/src/i18n/*.tsv) are project files
-#              under the project licence and carry no `sha256`: git history records their provenance.
 # [[bundled]]  a file compiled into PdfCraft by a Cargo dependency (its crate version must match Cargo.lock).
 # [[fetched]]  downloaded at build time by xtask (never committed), pinned by `sha256`.
-# [[build_input]] an optional build input outside this repository (e.g. craft-fonts via CRAFT_FONTS_DIR);
+# [[build_input]] an optional build input outside this repository (craft-fonts via CRAFT_FONTS_DIR, craft-i18n via CRAFT_I18N_DIR);
 #              never committed or downloaded here, its own repository attributes each file.
 #
 # licence: SPDX expression from the allowlist in AGENTS.md §1.2. adobe_data = true marks the closed list of
 # Adobe-authored non-visual technical data allowed by AGENTS.md §1.1.
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/zh-hans.tsv"
-title = "Simplified Chinese interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Simplified Chinese UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/zh-hant.tsv"
-title = "Traditional Chinese (Taiwan) interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Traditional Chinese UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/cs.tsv"
-title = "Czech interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 signature-check and standard-identification wordings are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Czech UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/pt-br.tsv"
-title = "Brazilian Portuguese interface translation catalog"
-author = "André Cardoso (andrecards), PdfCraft contributors"
-source = "Clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources: the ~1,826-entry gist posted in issue #288 (https://gist.github.com/andrecards/ac388c25fba17312ce83207f8b7b467e), completed and reviewed by PdfCraft contributors; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 text-field-table limit messages are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Brazilian Portuguese UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/es.tsv"
-title = "Spanish interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; the 2026-10-20 coverage additions are AI-assisted and not separately native-reviewed; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 signature-check wordings are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Spanish UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/fr.tsv"
-title = "French interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "French UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/de.tsv"
-title = "German interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "German UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/lo.tsv"
-title = "Lao interface translation catalog"
-author = "@bounkirdni-2025"
-source = "Contributor-original: clean-room translations of PdfCraft English UI labels, no proprietary localisation resources; 2026-10-22 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Lao UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/te.tsv"
-title = "Telugu interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Telugu UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/it.tsv"
-title = "Italian interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Italian UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/pl.tsv"
-title = "Polish interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 signature-check wordings are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Polish UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/ru.tsv"
-title = "Russian interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Russian UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/hu.tsv"
-title = "Hungarian interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Hungarian UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/bg.tsv"
-title = "Bulgarian interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Bulgarian UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/kk.tsv"
-title = "Kazakh interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of the English UI labels into Kazakh, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Kazakh UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/ja.tsv"
-title = "Japanese interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Japanese UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/uk.tsv"
-title = "Ukrainian interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Ukrainian UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/ar.tsv"
-title = "Arabic interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Arabic UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/ckb.tsv"
-title = "Central Kurdish (Sorani) interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-22 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Central Kurdish UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/fa.tsv"
-title = "Persian (Farsi) interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-25 initial catalog covering the current 2,776-entry key union, AI-assisted translations from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Persian UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/tr.tsv"
-title = "Turkish interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Turkish UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/lt.tsv"
-title = "Lithuanian interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels and user-facing messages; original catalog reviewed by a native Lithuanian-speaking contributor; 2026-10-15 coverage additions are AI-assisted and not separately native-reviewed; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Lithuanian UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/hi.tsv"
-title = "Hindi interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-22 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 text-field-table labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Hindi UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-[[asset]]
-path = "crates/ui-egui/src/i18n/id.tsv"
-title = "Indonesian interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-22 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 text-field-table labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Indonesian UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-[[asset]]
-path = "crates/ui-egui/src/i18n/ko.tsv"
-title = "Korean interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-22 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 text-field-table labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Korean UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/ro.tsv"
-title = "Romanian interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels and user-facing messages; AI-assisted and not yet reviewed line by line by a native Romanian speaker; 2026-10-22 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 text-field-table labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Romanian UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/fi.tsv"
-title = "Finnish interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: AI-assisted (Claude Code) clean-room translations of PdfCraft's English UI labels and user-facing messages; not yet proofread by a native Finnish speaker; 2026-10-22 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 text-field-table labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 calculation-order, text-format, print, thumbnail, layer, comment-reshape and signature labels (previously English placeholders) are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Finnish UI strings, compiled in by crates/ui-egui/src/i18n.rs"
 
 [[asset]]
 path = "assets/icons/accessibility.svg"
@@ -3382,6 +3101,17 @@ usage = "Scan & OCR: reads the words it finds (cargo xtask models)"
 sha256 = "86c145c2edb96c8caed5b1ebb8f44d706408922211451c309c625157dd6061c5"
 
 [[build_input]]
+name = "craft-i18n"
+option = "CRAFT_I18N_DIR"
+title = "Interface translations: the craft-i18n catalogs (locales/<code>/common.tsv and pdfcraft.tsv) of the 34 languages PdfCraft offers besides English"
+author = "The craft-i18n translators, including every translator of PdfCraft's former in-repo catalogs (crates/ui-egui/src/i18n/*.tsv, migrated at pdfcraft@ecdd1e6)"
+source = "https://github.com/storytold/craft-i18n (pinned by commit in craft-i18n.rev, which CI, releases and the flatpak manifests read)"
+licence = "MIT OR Apache-2.0"
+attribution = "https://github.com/storytold/craft-i18n/blob/main/ATTRIBUTION.md"
+kind = "translation"
+usage = "Interface text in languages other than English, embedded by crates/ui-egui/build.rs and looked up through craft-libs' craft-i18n crate; a build without CRAFT_I18N_DIR is English only. Clean-room translations from PdfCraft's English interface labels"
+
+[[build_input]]
 name = "craft-fonts"
 option = "CRAFT_FONTS_DIR"
 title = "Japanese fonts: BIZ UDPGothic (Regular, Bold), Shippori Mincho, BIZ UDMincho; native Simplified Chinese font: LXGW WenKai Lite; Arabic font: Noto Sans Arabic"
@@ -3415,26 +3145,6 @@ usage = "UI icon, embedded via crates/ui-egui/src/icon_data.rs"
 sha256 = "d1a443233345724859de8e4fb48968ba91e885e12ddbd710701548bd91b39428"
 
 [[asset]]
-path = "crates/ui-egui/src/i18n/vi.tsv"
-title = "Vietnamese interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels; PhotoCraft and VectorCraft Vietnamese catalogs used only as translation memory when English source and semantic context matched; original catalog reviewed by a native Vietnamese-speaking contributor; 2026-10-15 coverage additions are AI-assisted and not separately native-reviewed; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 signature-check wordings are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Vietnamese UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/sl.tsv"
-title = "Slovene interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-18 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Slovene UI strings, compiled in by crates/ui-egui/src/i18n.rs"
-
-[[asset]]
 
 path = "vendor/vello_common/assets/probe.png"
 title = "vello_common probe reference image (rendered from probe.rgba)"
@@ -3445,16 +3155,6 @@ licence_file = "vendor/vello_common/LICENSE-MIT"
 kind = "image"
 usage = "Reference picture of the vendored vello_common probe module, for people only; the build reads probe.rgba, not this file"
 sha256 = "78c59a0cfd2c829909d77006f94e34dac1ae5d1f90e7f10f72e84de541fef697"
-
-[[asset]]
-path = "crates/ui-egui/src/i18n/nb.tsv"
-title = "Norwegian Bokmål interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-22 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Norwegian Bokmål UI strings, compiled in by crates/ui-egui/src/i18n.rs"
 
 [[asset]]
 path = "assets/icons/superscript.svg"
@@ -3500,32 +3200,324 @@ kind = "icon"
 usage = "UI icon, embedded via crates/ui-egui/src/icon_data.rs"
 sha256 = "864ab2f19254e6ac7240bc6a98323197332e8f714d4d3f94831f41309e5ef2f7"
 
-[[asset]]
-path = "crates/ui-egui/src/i18n/sq.tsv"
-title = "Albanian interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-22 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 signature-appearance labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 text-field-table labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
-licence = "MIT OR Apache-2.0"
-licence_file = "LICENSE-MIT"
-kind = "translation"
-usage = "Albanian UI strings, compiled in by crates/ui-egui/src/i18n.rs"
+
+# Capital-8 fork: strings the fork added that craft-i18n does not have yet (crates/ui-egui/build.rs).
 
 [[asset]]
-path = "crates/ui-egui/src/i18n/th.tsv"
-title = "Thai interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, no proprietary localisation resources; 2026-10-22 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
+path = "crates/ui-egui/i18n-capital8/ar.tsv"
+title = "Capital-8 fork interface strings (ar): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
 licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
-usage = "Thai UI strings, compiled in by crates/ui-egui/src/i18n.rs"
+usage = "Appended to craft-i18n's ar pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "fe3a422e1d75311a6add41b5129e335e579edd3155ef31e0f0c10a19ede0175f"
 
 [[asset]]
-path = "crates/ui-egui/src/i18n/ca.tsv"
-title = "Catalan interface translation catalog"
-author = "PdfCraft contributors"
-source = "Contributor-original: clean-room translations of PdfCraft's English UI labels, written from their meaning; no proprietary localisation resources; 2026-10-22 page-gap labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 text-field-table labels are contributor-original AI-assisted translations from English, not separately native-reviewed; 2026-10-22 secured-document notice labels are contributor-original AI-assisted translations from English, not separately native-reviewed; the 2026-10-22 reply-count label is an AI-assisted translation from English, not separately native-reviewed"
+path = "crates/ui-egui/i18n-capital8/bg.tsv"
+title = "Capital-8 fork interface strings (bg): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
 licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
-usage = "Catalan UI strings, compiled in by crates/ui-egui/src/i18n.rs"
+usage = "Appended to craft-i18n's bg pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "07907dca86b61908c174504d6f303a1ba157c5fd13e1f35621585969f7eaf30e"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/ca.tsv"
+title = "Capital-8 fork interface strings (ca): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's ca pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "5c6552727d7a39b4e36eba6d42b5753d0a5df2543e52ccdc9bdec8eef77c52b4"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/cs.tsv"
+title = "Capital-8 fork interface strings (cs): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's cs pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "25657ac55aad68e54c5bbab2959a7dbe5632d997568a949167aa4b1a3d4c5a56"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/de.tsv"
+title = "Capital-8 fork interface strings (de): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's de pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "c5c7d41fdc2119a9dbfd4b5dee49a886372e1e11911fa97236f1400e8ae21d64"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/el.tsv"
+title = "Capital-8 fork interface strings (el): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's el pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "1f8e53e5aa87a5f40dff65d2d2f654a7cd009ffffdef782cb2d38aa5800d1321"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/es.tsv"
+title = "Capital-8 fork interface strings (es): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's es pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "5ecee776648e44c0e5b5a482bbf50b7a72e8dac3ed6b42736ab7c42b3a60cd50"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/fi.tsv"
+title = "Capital-8 fork interface strings (fi): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's fi pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "c851c3ddbaf334b88fae9c7a642571e3cc826c493383c87866930bc020ebde2e"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/fr.tsv"
+title = "Capital-8 fork interface strings (fr): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's fr pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "207b20330ecc2b65fa9194880aef5d91ea10e8f14e5f06f11ab1f2697e4a1410"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/hi.tsv"
+title = "Capital-8 fork interface strings (hi): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's hi pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "7207e1a50eea9615dc06f2b7f55a8b01b484f736e0e70960e3e4d8cdefbcf1e5"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/hu.tsv"
+title = "Capital-8 fork interface strings (hu): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's hu pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "61fb74d6dd5e89c0897384ba0a292b61cc78da8c78cee87bab8d3d894893ea19"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/id.tsv"
+title = "Capital-8 fork interface strings (id): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's id pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "6ca1c303ec836e17c0617c83d3a725fb2dbd6e6786ac6e52597bb412d3831dbc"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/it.tsv"
+title = "Capital-8 fork interface strings (it): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's it pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "c68bb184d8774caca38cb811750c8d16efb03319efd575c79593d53d92f83fcf"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/ja.tsv"
+title = "Capital-8 fork interface strings (ja): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's ja pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "481ab6830d5db7f11e46e4ea3bbc0fee2b740cdc0094c932056ce26a10e862b2"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/kk.tsv"
+title = "Capital-8 fork interface strings (kk): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's kk pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "5e0ed959b870399a81b400b25395e68cd3771872b90f09bbaf49aff0e7b61ded"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/ko.tsv"
+title = "Capital-8 fork interface strings (ko): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's ko pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "104082b3512b9a82e4115e475511a3ef579102a5636c2304af52816718b4e292"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/lt.tsv"
+title = "Capital-8 fork interface strings (lt): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's lt pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "a74efc49ff37a1975691e702368d845b98c2a184c60f05262d5bdbc9167cb496"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/pl.tsv"
+title = "Capital-8 fork interface strings (pl): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's pl pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "f27965477eb00f97587096e638fd844df3f518db11dcc693094f94cd248d9a53"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/pt-br.tsv"
+title = "Capital-8 fork interface strings (pt-br): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's pt-br pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "2fa07aee6504be58c9676326ea8baad8cc30da9677f3c369c042b6606afef333"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/ro.tsv"
+title = "Capital-8 fork interface strings (ro): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's ro pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "0e0b88162ac384316af1675b0c37b2d41ed52e6f5af159bb13e0608b04812336"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/ru.tsv"
+title = "Capital-8 fork interface strings (ru): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's ru pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "8b7128d65d3e90610f1c8eb508f4d7f7eccff51e05f5c9da677f83b49d1f5741"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/sl.tsv"
+title = "Capital-8 fork interface strings (sl): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's sl pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "de8b6f3e8e7404cf966d4dc1bcb4c448768f85578eacb9f9ace5a5baec6f9760"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/sq.tsv"
+title = "Capital-8 fork interface strings (sq): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's sq pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "576305fbe6d84f39fa07acbdd5e055c4a73e354085ceed4d11d75e80ff4bd874"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/te.tsv"
+title = "Capital-8 fork interface strings (te): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's te pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "0878cdf799b37c9d51399163f1a2571bcc63efb42f39ff6df1782317c5abfc91"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/tr.tsv"
+title = "Capital-8 fork interface strings (tr): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's tr pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "15559d968aa1f2a84a2a9c007008ea9656f1a260e83f41fd051c7410f58beedd"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/uk.tsv"
+title = "Capital-8 fork interface strings (uk): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's uk pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "716cf9c87bc418aa1755f7ab17ddca250328e2db3a63ddcf9e8280964b0e0eff"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/vi.tsv"
+title = "Capital-8 fork interface strings (vi): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's vi pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "be3a341adbf46e1929b46cc9bf9fa54b4ee4eef34f42fe1adc28c71224ee1f0f"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/zh-hans.tsv"
+title = "Capital-8 fork interface strings (zh-hans): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's zh-hans pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "8d79b06df85bc32ebf61463a8c56444839afa9c52503e33085e515f8dc50b0de"
+
+[[asset]]
+path = "crates/ui-egui/i18n-capital8/zh-hant.tsv"
+title = "Capital-8 fork interface strings (zh-hant): smart cards, signing online and document timestamps"
+author = "Capital-8 pdfcraft fork contributors"
+source = "Contributor-original AI-assisted translations of the fork's English UI labels, not separately native-reviewed"
+licence = "MIT OR Apache-2.0"
+licence_file = "LICENSE-MIT"
+kind = "translation"
+usage = "Appended to craft-i18n's zh-hant pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
+sha256 = "4e5e0a5809b07570964090b0cbc3b2c80e6deed024a0b3caef072e2cc83188e8"
