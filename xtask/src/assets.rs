@@ -322,12 +322,28 @@ pub fn fetch_all(m: &Manifest, dir: &Path, kind: &str) -> Result<Vec<PathBuf>> {
     let mut out = Vec::new();
     for f in m.fetched.iter().filter(|f| f.kind == kind) {
         let path = dir.join(&f.file);
-        fetch_verified(&f.url, &path, &f.sha256)?;
+        fetch_with_mirror(&f.url, &path, &f.sha256, kind)?;
         let licence = dir.join(format!("{}.LICENCE.txt", f.file));
-        fetch_verified(&f.licence_url, &licence, &f.licence_sha256)?;
+        fetch_with_mirror(&f.licence_url, &licence, &f.licence_sha256, kind)?;
         out.push(path);
     }
     Ok(out)
+}
+
+/// Capital-8 fork: unmodified copies of the OCR models and their licences, by file name, for when
+/// an original address fails. The SHA-256 check is the same, so a copy is used only if identical.
+/// `PDFCRAFT_MODELS_MIRROR` overrides the address (a directory URL ending in `/`).
+const MODELS_MIRROR: &str = "https://github.com/Capital-8/pdfcraft-models/releases/download/models-2026-11-04/";
+
+fn fetch_with_mirror(url: &str, path: &Path, sha256: &str, kind: &str) -> Result<()> {
+    let Err(e) = fetch_verified(url, path, sha256) else { return Ok(()) };
+    let name = path.file_name().and_then(|n| n.to_str()).unwrap_or_default();
+    if kind != "model" || name.is_empty() {
+        return Err(e);
+    }
+    let mirror = std::env::var("PDFCRAFT_MODELS_MIRROR").ok().filter(|m| !m.is_empty()).unwrap_or_else(|| MODELS_MIRROR.to_string());
+    println!("assets: {e}; trying the copy at {mirror}");
+    fetch_verified(&format!("{mirror}{name}"), path, sha256).with_context(|| format!("{e}, and the copy at {mirror} failed too"))
 }
 
 fn fetch_verified(url: &str, path: &Path, sha256: &str) -> Result<()> {

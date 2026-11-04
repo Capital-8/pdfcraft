@@ -74,6 +74,8 @@ The packaging scripts call `stage_models` (`packaging/env.sh`; `package.ps1` on 
 The current detection and recognition files are `text-detection.onnx` and `text-recognition.onnx`.
 Each model ships with its licence text and the directory's `ATTRIBUTION.txt`, so packaging needs the network.
 Upstream announced the legacy RTEN download URLs' brownout in [ocrs #282](https://github.com/robertknight/ocrs/issues/282) on 2026-10-27 and directs consumers to the ONNX models.
+Capital-8 fork: when an original address fails, `cargo xtask models` fetches the same file by name from the unmodified copies in the [`models-2026-11-04`](https://github.com/Capital-8/pdfcraft-models/releases/tag/models-2026-11-04) release (`PDFCRAFT_MODELS_MIRROR` overrides it); the SHA-256 check is unchanged.
+A new or updated model needs a new release there, with `MODELS_MIRROR` in `xtask/src/assets.rs` pointing at it.
 
 Runtime discovery prefers a complete ONNX detection/recognition pair within each directory, then a complete legacy `text-detection.rten` / `text-recognition.rten` pair.
 An incomplete ONNX update can therefore use an intact RTEN pair in the same directory.
