@@ -5196,7 +5196,7 @@ fn recognize_text_makes_a_scanned_page_searchable() {
     assert_eq!(found.len(), 1);
     let text = page_texts(&s, id)[0].to_lowercase();
     for w in ["quick", "brown", "fox", "lazy"] {
-        assert!(text.contains(w), "{text}");
+        assert!(text.contains(w), "{text}; correction: {:?}", found[0].correction);
     }
     assert_eq!(s.get(id).unwrap().can_undo(), Some("Recognize text"));
     // The text sits over the words: "quick" is left of "lazy" and on the same line.
@@ -6910,23 +6910,29 @@ fn a_value_a_script_sets_reaches_every_field_bound_to_the_same_data_node() {
     // `carried` inside the area and a second `carried` outside it bind to one data node (areas
     // are not data scopes). In document order: `setter` writes the inner one, `echo` reads the
     // outer one in the same event, and the saved data holds the one value.
-    let tpl = pdfcraft_xfa::fixtures::leave_template("<form><page><carried>5</carried></page></form>")
-        .replace(
-            r#"    <field name="rest" y="2.5in" w="2in" h="0.3in" access="readOnly">"#,
-            r#"    <field name="setter" y="3in" w="2in" h="0.3in"><ui><numericEdit/></ui><calculate><script>carried = 9
+    // Keep this binding regression independent of the leave form's repeating table and
+    // unrelated calculation scripts: those can exhaust the real script deadline in a VM.
+    let tpl = r#"<xdp:xdp xmlns:xdp="http://ns.adobe.com/xdp/">
+<template xmlns="http://www.xfa.org/schema/xfa-template/3.3/">
+<subform name="form" layout="tb">
+ <pageSet><pageArea><contentArea w="7.5in" h="10in"/><medium short="8.5in" long="11in"/></pageArea></pageSet>
+ <subform name="page" w="7.5in" h="9in">
+  <subform w="7.5in" h="8in">
+   <area name="box">
+    <field name="carried" y="1.5in" w="2in" h="0.3in"><ui><numericEdit/></ui></field>
+    <field name="allowance" y="2in" w="2in" h="0.3in"><ui><numericEdit/></ui><value><float>30</float></value></field>
+    <field name="setter" y="3in" w="2in" h="0.3in"><ui><numericEdit/></ui><calculate><script>carried = 9
 9</script></calculate></field>
-    <field name="rest" y="2.5in" w="2in" h="0.3in" access="readOnly">"#,
-        )
-        .replace(
-            "  </subform>\n </subform>\n</subform>",
-            r#"  </subform>
+   </area>
+  </subform>
   <field name="carried" y="8.2in" w="2in" h="0.3in"><ui><numericEdit/></ui></field>
   <field name="echo" y="8.5in" w="2in" h="0.3in"><ui><numericEdit/></ui><calculate><script>carried + 0</script></calculate></field>
  </subform>
-</subform>"#,
-        );
-    assert!(tpl.contains("name=\"echo\"") && tpl.contains("name=\"setter\""), "the fixture was reshaped");
-    let bytes = Arc::new(pdfcraft_xfa::fixtures::shell(&tpl));
+</subform>
+</template>
+<xfa:datasets xmlns:xfa="http://www.xfa.org/schema/xfa-data/1.0/"><xfa:data><form><page><carried>5</carried></page></form></xfa:data></xfa:datasets>
+</xdp:xdp>"#;
+    let bytes = Arc::new(pdfcraft_xfa::fixtures::shell(tpl));
     let mut s = Session::new().with_clock(|| 1_700_000_000);
     let id = s.open("shared.pdf", None, bytes, None).expect("opens");
     let out = s.take_js_output(id);
@@ -7147,18 +7153,28 @@ f(1)</script>",
 
 #[test]
 fn a_formcalc_calculate_result_is_cut_before_it_is_saved() {
-    let tpl = pdfcraft_xfa::fixtures::formcalc_template()
-        .replace("<script>WordNum(total)</script>", "<script>Replace(Space(100000), \" \", \"x\")</script>");
-    let bytes = Arc::new(pdfcraft_xfa::fixtures::shell(&tpl));
+    // Only the calculation under test: unrelated initialize/total/table scripts in the
+    // full demo form can spend the opening budget on a contended/virtualized CI runner.
+    // Keep production time limits, exact clipping and persisted-content checks unchanged.
+    let tpl = r#"<template xmlns="http://www.xfa.org/schema/xfa-template/3.3/">
+      <subform name="form">
+        <field name="words" w="4in" h="0.3in" access="readOnly">
+          <ui><textEdit/></ui>
+          <calculate><script contentType="application/x-formcalc">Replace(Space(100000), " ", "x")</script></calculate>
+        </field>
+      </subform>
+    </template>"#;
+    let bytes = Arc::new(pdfcraft_xfa::fixtures::shell(tpl));
     let mut s = Session::new().with_clock(|| 1_700_000_000);
     let id = s.open("long.pdf", None, bytes, None).expect("opens");
     let words = |s: &Session, id| s.get(id).unwrap().form.iter().find(|f| f.name == "words").unwrap().value.concat();
-    assert_eq!(words(&s, id).chars().count(), 65_536);
     let out = s.take_js_output(id);
+    assert_eq!(words(&s, id), "x".repeat(65_536), "{out:?}");
     assert!(out.errors.iter().any(|e| e.contains("cut")), "{out:?}");
     let saved = s.save_bytes(id).unwrap();
+    s.set_javascript(false); // Read persisted data without calculating it again.
     let id2 = s.open("again.pdf", None, saved, None).unwrap();
-    assert!(words(&s, id2).chars().count() <= 65_536);
+    assert_eq!(words(&s, id2), "x".repeat(65_536));
 }
 
 #[test]
@@ -10250,6 +10266,107 @@ fn image_transform_engine_refuses_singular_matrices_without_mutation() {
         assert!(s.apply(id, Edit::EditPageImage { page: 0, index: 0, change: ImageEdit::Transform(matrix) }).is_err());
         assert_eq!(s.get(id).unwrap().bytes, before);
     }
+}
+
+/// Optimize has JBIG2 images share a symbol dictionary only where redaction can store each again
+/// without it. Of four pages of the same scan, the two in DeviceGray and the image mask share one;
+/// the one in a DeviceN of one colourant, which redaction doesn't store again, is coded alone.
+/// Redacting the first page then stores the second and the mask again without the dictionary,
+/// which leaves the file.
+#[test]
+fn redacting_an_optimized_jbig2_page_stores_the_rest_of_its_group_again() {
+    use pdfcraft_cos::{Dict, Document, ObjRef, Object, SaveOptions, Stream, write_full};
+    let (w, h) = (600usize, 480usize);
+    // Lines of 26 letters, each 32 rows of a run from a stem down its left side, of 2 to 24 pixels,
+    // the same to the pixel wherever it is, picked and spaced at random.
+    let mut seed = 0x2545_F491_4F6C_DD1Du64;
+    let mut next = move || {
+        seed ^= seed << 13;
+        seed ^= seed >> 7;
+        seed ^= seed << 17;
+        seed as usize
+    };
+    let letters: Vec<Vec<usize>> = (0..26).map(|_| (0..16).map(|_| 1 + next() % 12).collect()).collect();
+    let stride = w.div_ceil(8);
+    let mut bits = vec![0xFFu8; stride * h];
+    for top in (8..h - 40).step_by(44) {
+        let mut x = 8 + next() % 8;
+        while x + 32 < w {
+            let letter = &letters[next() % 26];
+            for (row, run) in letter.iter().enumerate() {
+                for (px, py) in (x..x + 2 * run).flat_map(|px| [(px, top + 2 * row), (px, top + 2 * row + 1)]) {
+                    bits[py * stride + px / 8] &= !(0x80 >> (px % 8));
+                }
+            }
+            x += 2 * letter.iter().max().unwrap_or(&1) + 4 + next() % 5;
+        }
+    }
+    let mut doc = Document::new_empty();
+    let pages = doc.root().and_then(|r| doc.get(r).as_dict().and_then(|d| d.reference(b"Pages"))).unwrap();
+    let device_n = Object::Array(vec![Object::name("DeviceN"), Object::Array(vec![Object::name("Black")]), Object::name("DeviceGray"), {
+        let mut tint = Dict::new();
+        tint.set(b"FunctionType".to_vec(), Object::Int(2));
+        tint.set(b"Domain".to_vec(), Object::Array(vec![Object::Int(0), Object::Int(1)]));
+        tint.set(b"N".to_vec(), Object::Int(1));
+        Object::Dict(tint)
+    }]);
+    let mut images: Vec<ObjRef> = Vec::new();
+    let grey = || ("ColorSpace", Object::name("DeviceGray"));
+    for (k, (key, value)) in [grey(), grey(), ("ColorSpace", device_n), ("ImageMask", Object::Bool(true))].into_iter().enumerate() {
+        let mut d = Dict::new();
+        d.set(b"Type".to_vec(), Object::name("XObject"));
+        d.set(b"Subtype".to_vec(), Object::name("Image"));
+        d.set(b"Width".to_vec(), Object::Int(w as i64));
+        d.set(b"Height".to_vec(), Object::Int(h as i64));
+        d.set(b"BitsPerComponent".to_vec(), Object::Int(1));
+        d.set(key.as_bytes().to_vec(), value);
+        let image = doc.add(Object::Stream(Stream::flate(d, &bits)));
+        images.push(image);
+        let content = doc.add(Object::Stream(Stream::from_raw(Dict::new(), b"q 144 0 0 115.2 36 600 cm /Im Do Q".to_vec())));
+        let mut xobjects = Dict::new();
+        xobjects.set(b"Im".to_vec(), Object::Ref(image));
+        let mut resources = Dict::new();
+        resources.set(b"XObject".to_vec(), Object::Dict(xobjects));
+        let mut page = Dict::new();
+        page.set(b"Type".to_vec(), Object::name("Page"));
+        page.set(b"Parent".to_vec(), Object::Ref(pages));
+        page.set(b"MediaBox".to_vec(), Object::Array(vec![0.into(), 0.into(), 612.into(), 792.into()]));
+        page.set(b"Resources".to_vec(), Object::Dict(resources));
+        page.set(b"Contents".to_vec(), Object::Ref(content));
+        if k == 0 {
+            let mut mark = Dict::new();
+            mark.set(b"Type".to_vec(), Object::name("Annot"));
+            mark.set(b"Subtype".to_vec(), Object::name("Redact"));
+            mark.set(b"Rect".to_vec(), Object::Array(vec![40.into(), 610.into(), 100.into(), 650.into()]));
+            let mark = doc.add(Object::Dict(mark));
+            page.set(b"Annots".to_vec(), Object::Array(vec![Object::Ref(mark)]));
+        }
+        let page = doc.add(Object::Dict(page));
+        doc.update_dict(pages, |d| {
+            let mut kids = d.get(b"Kids").and_then(|k| k.as_array().cloned()).unwrap_or_default();
+            kids.push(Object::Ref(page));
+            d.set(b"Count".to_vec(), Object::Int(kids.len() as i64));
+            d.set(b"Kids".to_vec(), Object::Array(kids));
+        })
+        .unwrap();
+    }
+    let mono = pdfcraft_optimize::MonoSettings {
+        compression: pdfcraft_optimize::MonoCompression::Jbig2,
+        downsample: false,
+        ..pdfcraft_optimize::MonoSettings::REDUCE
+    };
+    pdfcraft_optimize::optimize(&mut doc, &pdfcraft_optimize::Settings { mono, ..Default::default() }).unwrap();
+    let globals = |doc: &Document, image: ObjRef| match &*doc.get(image) {
+        Object::Stream(s) => s.dict.get(b"DecodeParms").and_then(Object::as_dict).and_then(|d| d.reference(b"JBIG2Globals")),
+        _ => None,
+    };
+    let shared = globals(&doc, images[0]);
+    assert!(shared.is_some() && globals(&doc, images[1]) == shared && globals(&doc, images[3]) == shared, "DeviceGray and the mask share");
+    assert_eq!(globals(&doc, images[2]), None, "the DeviceN page is coded alone");
+    pdfcraft_redact::apply(&mut doc, None).unwrap();
+    let saved = Document::open(Arc::new(write_full(&doc, &SaveOptions::default()).unwrap())).unwrap();
+    let named = saved.scan_objects().filter(|(_, o)| matches!(&**o, Object::Stream(s) if saved.jbig2_globals_ref(s).is_some())).count();
+    assert_eq!(named, 0, "no image names the dictionary, which left with them");
 }
 
 #[test]

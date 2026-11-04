@@ -1,30 +1,74 @@
 //! pdfcraft-ocr — Scan & OCR ▸ Recognize text (L4).
 //!
-//! Recognition runs the ocrs engine (MIT/Apache-2.0) with its pre-trained models (CC-BY-SA-4.0,
-//! fetched by `cargo xtask models`; see ATTRIBUTION.toml). The caller renders a page to pixels;
-//! [`Ocr::recognize`] finds the words in them, and [`text_layer`] turns words placed in user space
-//! into page content: invisible text (rendering mode 3) over each word, so the page becomes a
-//! searchable image (Acrobat's "Searchable Image (Exact)": the image is left untouched).
-//!
-//! The models read the Latin alphabet (English and other languages written without accents).
+//! Ocrs detects text; PaddleOCR models read English, accented Latin/Japanese/Chinese and
+//! classify page orientation through RTen. Models are fetched by `cargo xtask models` (see
+//! ATTRIBUTION.toml), never at runtime. The engine places Unicode invisible text in PDFs;
+//! [`text_layer`] remains the legacy WinAnsi content helper. See README.md for limitations.
 
 #![deny(clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::unimplemented, clippy::todo, clippy::unreachable)]
 
 use std::path::{Path, PathBuf};
+pub mod crop;
+mod lines;
+mod multilingual;
+pub mod scan;
+mod typography;
 
 pub use pdfcraft_fonts::helvetica_width;
 
 /// The model files, as named in ATTRIBUTION.toml.
 pub const DETECTION_MODEL: &str = "text-detection.onnx";
 pub const RECOGNITION_MODEL: &str = "text-recognition.onnx";
+pub const MULTILINGUAL_MODEL: &str = "multilingual-recognition.onnx";
+pub const ORIENTATION_MODEL: &str = "document-orientation.onnx";
+pub const DICTIONARY: &str = "multilingual-dictionary.txt";
 
 /// The recognition model's alphabet, as it was trained (ocrs-models' `DEFAULT_ALPHABET`): its
 /// output classes follow this order. The ocrs crate's own copy has an `E` where the training had
 /// `€`, which made a scanned "€250" read as "E250".
 pub const ALPHABET: &str = " 0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~€ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
-/// The languages the models read (ISO 639-1); all use the Latin alphabet without accents.
-pub const LANGUAGES: &[(&str, &str)] = &[("en", "English")];
+/// Language choices (BCP 47 tags); see README.md for validation limits.
+pub const LANGUAGES: &[(&str, &str)] = &[
+    ("en", "English"),
+    ("de", "Deutsch"),
+    ("ja", "日本語"),
+    ("fr", "Français"),
+    ("es", "Español"),
+    ("ca", "Català"),
+    ("it", "Italiano"),
+    ("nl", "Nederlands"),
+    ("da", "Dansk"),
+    ("nb", "Norsk bokmål"),
+    ("sv", "Svenska"),
+    ("fi", "Suomi"),
+    ("pt", "Português"),
+    ("zh-Hant", "繁體中文"),
+    ("zh-Hans", "简体中文"),
+];
+
+/// Map the system locale to an OCR choice, independently of UI translations.
+/// Chinese script tags take precedence over region; bare `zh` selects simplified Chinese.
+/// Missing or unsupported locales use English.
+pub fn language_for_locale(locale: Option<&str>) -> &'static str {
+    let locale = locale.unwrap_or_default().trim().split(['.', '@']).next().unwrap_or_default();
+    let mut parts = locale.split(['-', '_']);
+    let primary = parts.next().unwrap_or_default();
+    if primary.eq_ignore_ascii_case("zh") {
+        // Only language/script/region subtags matter, never a later extension or private use.
+        let next = parts.next().unwrap_or_default();
+        if next.eq_ignore_ascii_case("Hant") {
+            return "zh-Hant";
+        }
+        if next.eq_ignore_ascii_case("Hans") {
+            return "zh-Hans";
+        }
+        return if ["TW", "HK", "MO"].iter().any(|region| next.eq_ignore_ascii_case(region)) { "zh-Hant" } else { "zh-Hans" };
+    }
+    // Older platforms use the generic Norwegian tag for Bokmål.
+    let primary = if primary.eq_ignore_ascii_case("no") { "nb" } else { primary };
+    LANGUAGES.iter().find(|(code, _)| code.eq_ignore_ascii_case(primary)).map_or("en", |(code, _)| *code)
+}
 
 #[derive(Debug, thiserror::Error)]
 pub enum OcrError {
@@ -40,7 +84,7 @@ pub enum OcrError {
     EmptyImage,
 }
 
-/// Where the two model files are.
+/// Where the detector and English recognizer are; multilingual assets live alongside them.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Models {
     pub detection: PathBuf,
@@ -48,9 +92,13 @@ pub struct Models {
 }
 
 impl Models {
-    /// A complete model pair in `dir`, preferring current ONNX files over legacy RTEN files.
-    /// An incomplete update never mixes formats or hides an intact legacy pair.
+    /// A complete model set in `dir`: the detection and recognition pair, preferring current ONNX
+    /// files over legacy RTEN files (an incomplete update never mixes formats or hides an intact
+    /// legacy pair), and the multilingual recognition, orientation and dictionary files.
     pub fn in_dir(dir: &Path) -> Option<Models> {
+        if ![MULTILINGUAL_MODEL, ORIENTATION_MODEL, DICTIONARY].iter().all(|f| dir.join(f).is_file()) {
+            return None;
+        }
         [(DETECTION_MODEL, RECOGNITION_MODEL), ("text-detection.rten", "text-recognition.rten")].into_iter().find_map(|(detection, recognition)| {
             let m = Models { detection: dir.join(detection), recognition: dir.join(recognition) };
             (m.detection.is_file() && m.recognition.is_file()).then_some(m)
@@ -109,6 +157,7 @@ impl Line {
 /// A loaded recogniser. Loading takes a moment; keep one and reuse it.
 pub struct Ocr {
     engine: ocrs::OcrEngine,
+    multilingual: multilingual::Multilingual,
 }
 
 impl Ocr {
@@ -121,7 +170,8 @@ impl Ocr {
             ..Default::default()
         };
         let engine = ocrs::OcrEngine::new(params).map_err(|e| OcrError::Load("ocr engine".into(), e.to_string()))?;
-        Ok(Ocr { engine })
+        let dir = models.recognition.parent().ok_or(OcrError::NoModels)?;
+        Ok(Ocr { engine, multilingual: multilingual::Multilingual::load(dir)? })
     }
 
     /// Load the models found by [`Models::find`].
@@ -135,7 +185,8 @@ impl Ocr {
             return Err(OcrError::EmptyImage);
         }
         // ocrs wants 1 or 3 channels.
-        let rgb: std::borrow::Cow<[u8]> = if pixels.len() == (width * height * 4) as usize {
+        let count = (width as usize).checked_mul(height as usize).and_then(|n| n.checked_mul(4)).ok_or(OcrError::EmptyImage)?;
+        let rgb: std::borrow::Cow<[u8]> = if pixels.len() == count {
             pixels.as_chunks::<4>().0.iter().flat_map(|p| [p[0], p[1], p[2]]).collect::<Vec<u8>>().into()
         } else {
             pixels.into()
@@ -163,6 +214,69 @@ impl Ocr {
             .filter(|l| !l.words.is_empty())
             .collect())
     }
+
+    pub fn recognize_language(&self, image: &image::RgbImage, language: &str) -> Result<Vec<Line>, OcrError> {
+        if !LANGUAGES.iter().any(|l| l.0 == language) {
+            return Err(OcrError::Recognize(format!("unsupported language: {language}")));
+        }
+        use rten_imageproc::BoundingRect;
+        let source = ocrs::ImageSource::from_bytes(image.as_raw(), image.dimensions()).map_err(|e| OcrError::Recognize(e.to_string()))?;
+        let input = self.engine.prepare_input(source).map_err(|e| OcrError::Recognize(e.to_string()))?;
+        let found = self.engine.detect_words(&input).map_err(|e| OcrError::Recognize(e.to_string()))?;
+        let boxes = self.engine.find_text_lines(&input, &found);
+        let lines: Vec<_> = boxes
+            .into_iter()
+            .map(|line| {
+                let rect = line.iter().map(|r| r.bounding_rect()).fold([f32::INFINITY, f32::INFINITY, 0.0f32, 0.0f32], |a, r| {
+                    [a[0].min(r.left()), a[1].min(r.top()), a[2].max(r.right()), a[3].max(r.bottom())]
+                });
+                let directions: Vec<_> = line.iter().map(reading_direction).collect();
+                let corners: Vec<_> = line.iter().flat_map(|r| r.corners()).map(|p| [p.x, p.y]).collect();
+                let skewed = lines::LineBox::fit(&directions, &corners).filter(skewed_enough);
+                (rect, skewed)
+            })
+            .collect();
+        // CJK's centred punctuation can split one horizontal line into several detections.
+        // Join their geometry before padded crops reach the recognizer, avoiding duplicate ink.
+        let lines = if matches!(language, "zh-Hant" | "zh-Hans") {
+            lines::join_fragments(lines.into_iter().map(|(rect, _)| rect).collect()).into_iter().map(|rect| (rect, None)).collect()
+        } else {
+            lines
+        };
+        let mut out = Vec::new();
+        for (rect, skewed) in lines {
+            let words = match skewed {
+                Some(line) => self.multilingual.read_skewed_line(image, &line, language)?,
+                None => self.multilingual.read_line(image, rect, language)?,
+            };
+            let words = typography::correct(words, language);
+            if !words.is_empty() {
+                out.push(Line { words });
+            }
+        }
+        Ok(out)
+    }
+
+    pub fn orientation(&self, image: &image::RgbImage) -> Result<u16, OcrError> {
+        self.multilingual.orientation(image)
+    }
+}
+
+/// Whether `line` is read straightened. Only when its baseline climbs more than a quarter of
+/// its height from end to end: below that its bounding box takes in no neighbours, and a short
+/// word's box angle is mostly noise. More than 20° is no line skew but a turned page, which
+/// orientation handles.
+fn skewed_enough(line: &lines::LineBox) -> bool {
+    let angle = line.angle().abs();
+    angle <= 20.0 && line.length() * angle.to_radians().sin() > 0.25 * line.height()
+}
+
+/// A detected word's reading direction and its length along it. The detector's boxes have
+/// no orientation, so this is whichever side is nearer horizontal.
+fn reading_direction(word: &rten_imageproc::RotatedRect) -> ([f32; 2], f32) {
+    let up = word.up_axis();
+    let side = up.perpendicular();
+    if side.x.abs() >= side.y.abs() { ([side.x, side.y], word.width()) } else { ([up.x, up.y], word.height()) }
 }
 
 /// A word placed on a page, in PDF user space: the bottom-left corner of its box, and the
@@ -247,6 +361,54 @@ pub fn text_layer(words: &[PlacedWord]) -> Vec<u8> {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn system_locale_selects_ocr_language_with_english_fallback() {
+        for (locale, expected) in [
+            ("de-AT", "de"),
+            ("de_CH.UTF-8", "de"),
+            ("JA-jp", "ja"),
+            ("fr-CA", "fr"),
+            ("es-MX", "es"),
+            ("it-IT", "it"),
+            ("nl-BE", "nl"),
+            ("da-DK", "da"),
+            ("nb-NO", "nb"),
+            ("no_NO", "nb"),
+            ("sv-FI", "sv"),
+            ("fi_FI", "fi"),
+            ("pt-BR", "pt"),
+            ("pt_PT@euro", "pt"),
+            (" EN-us ", "en"),
+            ("is-IS", "en"),
+            ("nn-NO", "en"),
+            ("ca-ES", "ca"),
+            ("ca_ES.UTF-8", "ca"),
+            ("ca-AD", "ca"),
+            ("ca-ES-valencia", "ca"),
+            ("zh-Hans", "zh-Hans"),
+            ("zh", "zh-Hans"),
+            ("zh-CN", "zh-Hans"),
+            ("zh_SG.UTF-8", "zh-Hans"),
+            ("zh-TW", "zh-Hant"),
+            ("zh_HK", "zh-Hant"),
+            ("zh-MO", "zh-Hant"),
+            (" ZH-hANT-cn ", "zh-Hant"),
+            ("zh-Hans-TW", "zh-Hans"),
+            ("zh-Hant-HK", "zh-Hant"),
+            ("C.UTF-8", "en"),
+            ("POSIX", "en"),
+            ("", "en"),
+            ("日本語", "en"),
+            ("deutsch", "en"),
+        ] {
+            assert_eq!(super::language_for_locale(Some(locale)), expected, "{locale}");
+        }
+        assert_eq!(super::language_for_locale(None), "en");
+        for (code, _) in super::LANGUAGES {
+            assert_eq!(super::language_for_locale(Some(code)), *code);
+        }
+    }
+
     use super::*;
 
     #[test]
@@ -324,10 +486,30 @@ mod tests {
         assert_eq!(w.up, [-10.0, 0.0]);
     }
 
+    /// The multilingual recognition, orientation and dictionary files every model set needs.
+    fn multilingual_set(dir: &Path) {
+        for file in [MULTILINGUAL_MODEL, ORIENTATION_MODEL, DICTIONARY] {
+            std::fs::write(dir.join(file), b"model").unwrap();
+        }
+    }
+
+    /// A complete pair is not enough without the multilingual files.
+    #[test]
+    fn model_discovery_needs_the_multilingual_files() {
+        let dir = tempfile::tempdir().unwrap();
+        for file in [DETECTION_MODEL, RECOGNITION_MODEL] {
+            std::fs::write(dir.path().join(file), b"model").unwrap();
+        }
+        assert_eq!(Models::in_dir(dir.path()), None);
+        multilingual_set(dir.path());
+        assert!(Models::in_dir(dir.path()).is_some());
+    }
+
     /// The current ONNX pair wins when an installation also retains both legacy models.
     #[test]
     fn model_discovery_prefers_the_complete_onnx_pair() {
         let dir = tempfile::tempdir().unwrap();
+        multilingual_set(dir.path());
         for file in ["text-detection.onnx", "text-recognition.onnx"] {
             std::fs::write(dir.path().join(file), b"model").unwrap();
         }
@@ -344,6 +526,7 @@ mod tests {
     fn model_discovery_falls_back_to_legacy_when_the_onnx_pair_is_incomplete() {
         for current in ["text-detection.onnx", "text-recognition.onnx"] {
             let dir = tempfile::tempdir().unwrap();
+            multilingual_set(dir.path());
             for file in [current, "text-detection.rten", "text-recognition.rten"] {
                 std::fs::write(dir.path().join(file), b"model").unwrap();
             }
@@ -360,6 +543,7 @@ mod tests {
     fn model_discovery_refuses_mixed_format_pairs() {
         for pair in [["text-detection.onnx", "text-recognition.rten"], ["text-detection.rten", "text-recognition.onnx"]] {
             let dir = tempfile::tempdir().unwrap();
+            multilingual_set(dir.path());
             for file in pair {
                 std::fs::write(dir.path().join(file), b"model").unwrap();
             }
@@ -371,6 +555,7 @@ mod tests {
     #[test]
     fn model_discovery_keeps_legacy_only_installations() {
         let dir = tempfile::tempdir().unwrap();
+        multilingual_set(dir.path());
         assert_eq!(Models::in_dir(dir.path()), None);
         std::fs::write(dir.path().join("text-detection.rten"), b"model").unwrap();
         assert_eq!(Models::in_dir(dir.path()), None, "one legacy model is incomplete");
@@ -402,7 +587,7 @@ mod tests {
             std::fs::create_dir_all(&models_dir).unwrap();
             let found = || Models::dirs_beside_exe(&exe_dir).iter().find_map(|d| Models::in_dir(d));
             assert_eq!(found(), None, "{name}: no models yet");
-            for file in [DETECTION_MODEL, RECOGNITION_MODEL] {
+            for file in [DETECTION_MODEL, RECOGNITION_MODEL, MULTILINGUAL_MODEL, ORIENTATION_MODEL, DICTIONARY] {
                 std::fs::write(models_dir.join(file), b"model").unwrap();
             }
             let models = found().unwrap_or_else(|| panic!("{name}: models in {} not found", models_dir.display()));
@@ -441,6 +626,10 @@ mod tests {
         assert!(text.iter().any(|t| t.contains("HELL") && t.contains("WOR")), "{text:?}");
         let word = lines.iter().flat_map(|l| &l.words).find(|w| w.text.contains("HELL")).unwrap();
         assert!(word.rect[0] >= 10.0 && word.rect[0] < 60.0, "{word:?}");
+        let image = image::DynamicImage::ImageRgba8(image::RgbaImage::from_raw(w, h, px).unwrap()).to_rgb8();
+        let multi = ocr.recognize_language(&image, "de").unwrap();
+        assert!(multi.iter().map(Line::text).collect::<Vec<_>>().join(" ").contains("HELLO"), "{multi:?}");
+        let _ = ocr.orientation(&image).unwrap();
     }
 
     mod test_image {

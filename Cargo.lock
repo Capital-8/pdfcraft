@@ -4527,9 +4527,12 @@ dependencies = [
 name = "pdfcraft-ocr"
 version = "0.18.1"
 dependencies = [
+ "image",
  "ocrs",
  "pdfcraft-fonts",
  "rten",
+ "rten-imageproc",
+ "rten-tensor",
  "tempfile",
  "thiserror 2.0.21",
 ]

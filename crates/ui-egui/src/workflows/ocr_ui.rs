@@ -28,20 +28,53 @@ pub struct OcrDraft {
     pub language: String,
     /// "Downsample to" resolution.
     pub dpi: u32,
+    pub auto_rotate: bool,
+    pub deskew: bool,
+    pub auto_crop: bool,
+    pub crop_margin: f64,
+    pub recognize: bool,
     /// Also recognize pages that already have text (pictures on them; their text isn't added again).
     pub text_pages: bool,
 }
 
 impl Default for OcrDraft {
     fn default() -> Self {
-        OcrDraft { pages: OcrPages::All, from: 1, to: 1, language: "en".into(), dpi: 300, text_pages: false }
+        OcrDraft {
+            pages: OcrPages::All,
+            from: 1,
+            to: 1,
+            language: pdfcraft_engine::ocr::language_for_locale(sys_locale::get_locale().as_deref()).into(),
+            dpi: 300,
+            auto_rotate: true,
+            deskew: true,
+            auto_crop: false,
+            crop_margin: 2.0,
+            recognize: true,
+            text_pages: false,
+        }
     }
 }
 
 impl OcrDraft {
-    /// The recognition settings these choices make.
+    /// Shared by single-file and batch recognition; enhancement also processes existing text.
     pub fn settings(&self) -> OcrSettings {
-        OcrSettings { dpi: self.dpi as f32, language: self.language.clone(), skip_text_pages: !self.text_pages, ..Default::default() }
+        OcrSettings {
+            dpi: self.dpi as f32,
+            language: self.language.clone(),
+            skip_text_pages: self.recognize && !self.text_pages,
+            auto_rotate: self.auto_rotate,
+            deskew: self.deskew,
+            auto_crop: self.auto_crop,
+            crop_margin: self.crop_margin,
+            recognize: self.recognize,
+            ..Default::default()
+        }
+    }
+
+    /// Recognize text in multiple files always adds text, even straight after Enhance scanned
+    /// file turned recognition off.
+    pub fn batch_settings(&self) -> OcrSettings {
+        OcrSettings { recognize: true, skip_text_pages: !self.text_pages, ..self.settings() }
     }
 }
 
@@ -96,7 +129,7 @@ pub(crate) fn body(ui: &mut egui::Ui, app: &mut PdfCraftApp, t: &Tokens) -> (boo
     let d = &mut app.ocr_draft;
     d.to = d.to.clamp(1, pages);
     d.from = d.from.clamp(1, d.to);
-    ui.label(egui::RichText::new(tl!("Recognize Text")).font(theme::semibold(18.0)));
+    ui.label(egui::RichText::new(tl!("Scan and text recognition")).font(theme::semibold(18.0)));
     ui.add_space(8.0);
     let group = |ui: &mut egui::Ui, title: &str, body: &mut dyn FnMut(&mut egui::Ui)| {
         ui.label(egui::RichText::new(tl!(title)).font(theme::semibold(13.0)));
@@ -120,18 +153,21 @@ pub(crate) fn body(ui: &mut egui::Ui, app: &mut PdfCraftApp, t: &Tokens) -> (boo
     group(ui, "Settings", &mut |ui| {
         egui::Grid::new("ocr-settings").num_columns(2).spacing([12.0, 8.0]).show(ui, |ui| {
             ui.label(tl!("Document language"));
-            let name = LANGUAGES.iter().find(|l| l.0 == d.language).map_or("English", |l| l.1);
-            craft_ui::ComboBox::from_id_salt("ocr-language").selected_text(tl!(name)).width(220.0).show_ui(ui, |ui| {
+            let name = LANGUAGES.iter().find(|l| l.0 == d.language).map_or("English", |l| language_name(ui, l.0, l.1));
+            craft_ui::ComboBox::from_id_salt("ocr-language").selected_text(tl!(name)).width(220.0).height(560.0).show_ui(ui, |ui| {
                 for (code, name) in LANGUAGES {
-                    ui.selectable_value(&mut d.language, (*code).to_string(), tl!(*name));
+                    let name = language_name(ui, code, name);
+                    ui.selectable_value(&mut d.language, (*code).to_string(), tl!(name));
                 }
             });
             ui.end_row();
             ui.label(tl!("Output"));
-            craft_ui::ComboBox::from_id_salt("ocr-output").selected_text(tl!("Searchable Image (Exact)")).width(220.0).show_ui(ui, |ui| {
-                let _ = ui
-                    .selectable_label(true, tl!("Searchable Image (Exact)"))
-                    .on_hover_text(tl!("Adds invisible text over each word; the page image is not changed"));
+            ui.label(if !d.recognize {
+                tl!("Corrected scan")
+            } else if d.auto_rotate || d.deskew || d.auto_crop {
+                tl!("Searchable Image")
+            } else {
+                tl!("Searchable Image (Exact)")
             });
             ui.end_row();
             ui.label(tl!("Downsample to"));
@@ -146,6 +182,26 @@ pub(crate) fn body(ui: &mut egui::Ui, app: &mut PdfCraftApp, t: &Tokens) -> (boo
         ui.add(crate::widgets::checkbox(&mut d.text_pages, tl!("Also recognize pages that already have text")))
             .on_hover_text(tl!("Pictures on those pages are recognized too; words already in the page's text are not added again"));
     });
+    group(ui, "Scan correction", &mut |ui| {
+        ui.add(widgets::checkbox(&mut d.auto_rotate, tl!("Automatically rotate sideways and upside-down pages")));
+        ui.add(widgets::checkbox(&mut d.deskew, tl!("Straighten skewed scans")));
+        ui.add(widgets::checkbox(&mut d.auto_crop, tl!("Crop scanner borders to the paper edge")));
+        ui.add_enabled_ui(d.auto_crop, |ui| {
+            ui.horizontal(|ui| {
+                ui.label(tl!("Safety margin (pt)"));
+                ui.add(egui::DragValue::new(&mut d.crop_margin).range(0.0..=20.0).speed(0.5));
+            });
+        });
+        ui.label(
+            egui::RichText::new(tl!("Only clear paper edges are cropped. Indistinguishable white borders are kept.")).small().color(t.text_muted),
+        );
+        ui.add(widgets::checkbox(&mut d.recognize, tl!("Add searchable text")));
+        ui.label(
+            egui::RichText::new(tl!("Uncertain orientations are left unchanged. Deskew fits the full image inside the page."))
+                .small()
+                .color(t.text_muted),
+        );
+    });
     if !available {
         ui.label(
             egui::RichText::new(tl!("Text recognition isn't installed: its model files are missing. Reinstall PdfCraft, or set PDFCRAFT_MODELS to the folder that holds them."))
@@ -158,7 +214,13 @@ pub(crate) fn body(ui: &mut egui::Ui, app: &mut PdfCraftApp, t: &Tokens) -> (boo
     let (mut go, mut cancel) = (false, false);
     ui.horizontal(|ui| {
         ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-            if ui.add_enabled_ui(available, |ui| widgets::pill_button(ui, tl!("Recognize text"), true)).inner.clicked() {
+            if ui
+                .add_enabled_ui(available, |ui| {
+                    widgets::pill_button(ui, if d.recognize { tl!("Recognize text") } else { tl!("Correct scans") }, true)
+                })
+                .inner
+                .clicked()
+            {
                 go = true;
             }
             if widgets::pill_button(ui, tl!("Cancel"), false).clicked() {
@@ -308,7 +370,7 @@ impl PdfCraftApp {
             return;
         }
         // The settings showing now, not when the folder arrives.
-        let settings = self.ocr_draft.settings();
+        let settings = self.ocr_draft.batch_settings();
         #[cfg(not(target_arch = "wasm32"))]
         match self.export_dir_override.clone() {
             Some(d) => self.ocr_files_into(files, settings, d.into()),
@@ -404,7 +466,7 @@ fn recognize_files(
 }
 
 impl PdfCraftApp {
-    /// Stop a running recognition (the pages read so far are kept).
+    /// Stop a running recognition without applying partial results.
     pub fn cancel_ocr(&mut self) {
         if let Some(r) = &self.ocr_run
             && let Ok(mut s) = r.progress.lock()
@@ -478,8 +540,13 @@ impl PdfCraftApp {
             }
             return;
         };
+        let cancelled = s.cancel;
         drop(s);
         self.ocr_run = None;
+        if cancelled {
+            self.notify_tr("Scan processing cancelled");
+            return;
+        }
         // The result is for the bytes the run started from. If the document has changed since (a
         // page deleted or moved, say) its page index may now name another page: drop it, and let
         // the page in view be judged again.
@@ -500,6 +567,7 @@ impl PdfCraftApp {
         };
         let read = found.iter().filter(|p| p.skipped.is_none()).count();
         let skipped = found.len() - read;
+        let corrected = found.iter().filter(|p| p.skipped.is_none() && p.changed()).count();
         match self.session.apply_ocr(doc, &found) {
             Ok(words) => {
                 if let Some(info) = self.session.get(doc).map(|d| d.info.clone())
@@ -520,16 +588,38 @@ impl PdfCraftApp {
                 let mut msg = crate::i18n::fmt(tl!("{words} on {pages}"), &[("words", &words_part), ("pages", &pages_part)]);
                 if skipped > 0 {
                     msg.push_str(&if skipped == 1 {
-                        crate::i18n::fmt(tl!("; 1 page already had text"), &[])
+                        crate::i18n::fmt(tl!("; 1 page skipped"), &[])
                     } else {
-                        crate::i18n::fmt(tl!("; {n} pages already had text"), &[("n", &skipped.to_string())])
+                        crate::i18n::fmt(tl!("; {n} pages skipped"), &[("n", &skipped.to_string())])
                     });
+                }
+                if corrected > 0 {
+                    msg.push_str(&crate::i18n::fmt(tl!("; corrected {n} pages"), &[("n", &corrected.to_string())]));
+                }
+                let reasons: std::collections::BTreeSet<_> = found.iter().filter_map(|p| p.skipped.as_deref()).collect();
+                if !reasons.is_empty() {
+                    msg.push_str(": ");
+                    msg.push_str(&reasons.into_iter().collect::<Vec<_>>().join("; "));
                 }
                 self.notify(msg);
             }
             Err(e) => self.notify_error(e),
         }
     }
+}
+
+/// An OCR language's name in the picker: its native name when the interface's fonts can draw it,
+/// otherwise English, as the other language pickers do ([`crate::i18n::Lang::picker_name`]).
+/// egui 0.37 panics on a glyph no face has, and an English-only build without an embedded or
+/// installed Chinese face cannot draw `简体中文`.
+fn language_name(ui: &egui::Ui, code: &str, native: &'static str) -> &'static str {
+    let english = match code {
+        "ja" => "Japanese",
+        "zh-Hant" => "Traditional Chinese",
+        "zh-Hans" => "Simplified Chinese",
+        _ => return native,
+    };
+    if crate::dialogs::preferences::picker_text_is_drawable(ui, native) { native } else { english }
 }
 
 /// "Recognize text failed: {e}", in the current language.
@@ -625,6 +715,19 @@ mod tests {
         app.session.apply(id, add).unwrap();
         assert_eq!(found(&mut app), Some(0), "a picture over the page makes it a scan");
     }
+    /// Enhance scanned file turns recognition off in the shared draft; a batch run started after it
+    /// still adds text, and skips pages with text unless the dialog says otherwise.
+    #[test]
+    fn batch_recognition_adds_text_after_enhance_scanned_file() {
+        let mut app = app_with(scan());
+        assert!(app.execute("ocr.enhance"));
+        assert!(!app.ocr_draft.settings().recognize);
+        let batch = app.ocr_draft.batch_settings();
+        assert!(batch.recognize && batch.skip_text_pages, "{batch:?}");
+        app.ocr_draft.text_pages = true;
+        assert!(!app.ocr_draft.batch_settings().skip_text_pages);
+    }
+
     /// A finished run Edit started is applied only once Read mode and dialogs are gone; one the user
     /// asked for is applied at once. The result is made up, so no OCR models are needed.
     #[test]
@@ -632,7 +735,8 @@ mod tests {
         let word = || pdfcraft_engine::ocr::PlacedWord { text: "scanned".into(), origin: [72.0, 700.0], across: [60.0, 0.0], up: [0.0, 12.0] };
         let finished = |app: &PdfCraftApp, automatic: bool| {
             let generation = app.session.get(app.active_ids().unwrap().1).unwrap().edit_generation();
-            let page = pdfcraft_engine::ocr::OcrPage { page: 0, words: vec![word()], already_on_page: 0, skipped: None };
+            let bytes = app.session.get(app.active_ids().unwrap().1).unwrap().bytes.clone();
+            let page = pdfcraft_engine::ocr::OcrPage::with_words(0, vec![word()], bytes);
             let progress = Arc::new(Mutex::new(OcrProgress { done: 1, total: 1, result: Some(Ok(vec![page])), cancel: false }));
             OcrRun { doc: app.active_ids().unwrap().1, progress, automatic: automatic.then_some(AutoOcr { page: 0, generation }) }
         };
@@ -667,12 +771,11 @@ mod tests {
         let mut app = app_with(scan());
         let id = app.active_ids().unwrap().1;
         let generation = app.session.get(id).unwrap().edit_generation();
-        let page = pdfcraft_engine::ocr::OcrPage {
-            page: 0,
-            words: vec![pdfcraft_engine::ocr::PlacedWord { text: "scanned".into(), origin: [72.0, 700.0], across: [60.0, 0.0], up: [0.0, 12.0] }],
-            already_on_page: 0,
-            skipped: None,
-        };
+        let page = pdfcraft_engine::ocr::OcrPage::with_words(
+            0,
+            vec![pdfcraft_engine::ocr::PlacedWord { text: "scanned".into(), origin: [72.0, 700.0], across: [60.0, 0.0], up: [0.0, 12.0] }],
+            app.session.get(id).unwrap().bytes.clone(),
+        );
         let progress = Arc::new(Mutex::new(OcrProgress { done: 1, total: 1, result: Some(Ok(vec![page])), cancel: false }));
         app.ocr_run = Some(OcrRun { doc: id, progress, automatic: Some(AutoOcr { page: 0, generation }) });
         app.views[0].auto_ocr_tried.insert(0);
