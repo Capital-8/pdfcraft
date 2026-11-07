@@ -3284,7 +3284,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's ar pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "fe3a422e1d75311a6add41b5129e335e579edd3155ef31e0f0c10a19ede0175f"
+sha256 = "bce38eab53f5ff00ea42ec76ad42563b5cfeada7938bf06ac1364502ec954fa6"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/bg.tsv"
@@ -3295,7 +3295,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's bg pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "07907dca86b61908c174504d6f303a1ba157c5fd13e1f35621585969f7eaf30e"
+sha256 = "e46d35fdfaab740f189b33f4dd800d2ad40a256bfa26e7f9bc65701100cb643b"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/ca.tsv"
@@ -3306,7 +3306,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's ca pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "5c6552727d7a39b4e36eba6d42b5753d0a5df2543e52ccdc9bdec8eef77c52b4"
+sha256 = "48e8cf68740c2ff53d2f94aab35a1f1d53c821d82c4491c9c2bb359dff6fb1b6"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/cs.tsv"
@@ -3317,7 +3317,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's cs pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "25657ac55aad68e54c5bbab2959a7dbe5632d997568a949167aa4b1a3d4c5a56"
+sha256 = "b647c9b684c282e299139dc74d790cf584b1c476a7e4fe82853dd9bff8d9b7fd"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/de.tsv"
@@ -3328,7 +3328,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's de pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "c5c7d41fdc2119a9dbfd4b5dee49a886372e1e11911fa97236f1400e8ae21d64"
+sha256 = "b275e5ebc8d92699fe3b49694535fb720cbcbbec2728b0bde40ca833f6866e4a"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/el.tsv"
@@ -3339,7 +3339,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's el pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "1f8e53e5aa87a5f40dff65d2d2f654a7cd009ffffdef782cb2d38aa5800d1321"
+sha256 = "6d3f17c71a4890fdd7ea007eb1978b397248eb146990eaf39e1d53206cf878f7"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/es.tsv"
@@ -3350,7 +3350,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's es pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "5ecee776648e44c0e5b5a482bbf50b7a72e8dac3ed6b42736ab7c42b3a60cd50"
+sha256 = "18cbc3926cfcc87b489e51ffaff3575ba031fa5e121568d52b5193a95e88ffc7"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/fi.tsv"
@@ -3361,7 +3361,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's fi pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "c851c3ddbaf334b88fae9c7a642571e3cc826c493383c87866930bc020ebde2e"
+sha256 = "749bd0e28b3cc1236873984ac8705c33710264d21e1505555c8ac96c6780de9a"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/fr.tsv"
@@ -3372,7 +3372,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's fr pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "207b20330ecc2b65fa9194880aef5d91ea10e8f14e5f06f11ab1f2697e4a1410"
+sha256 = "cb0586543d56422f8a45d7242ca1d24e02cd45852033aca3578659b86a1fb308"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/hi.tsv"
@@ -3383,7 +3383,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's hi pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "7207e1a50eea9615dc06f2b7f55a8b01b484f736e0e70960e3e4d8cdefbcf1e5"
+sha256 = "8aeadf61a9c3ef1ddf4ff6769c6df1072f38431d1e71c41bac119714812103ce"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/hu.tsv"
@@ -3394,7 +3394,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's hu pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "61fb74d6dd5e89c0897384ba0a292b61cc78da8c78cee87bab8d3d894893ea19"
+sha256 = "7876a3a6320d7ce8882ab26b65cb57f1316910a02e30a03fc32e7cfb7590afd6"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/id.tsv"
@@ -3405,7 +3405,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's id pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "6ca1c303ec836e17c0617c83d3a725fb2dbd6e6786ac6e52597bb412d3831dbc"
+sha256 = "b184ad495735e2fcd521a9f9d75184b35ae5f900462c32929b4f030f0bc0bdc6"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/it.tsv"
@@ -3416,7 +3416,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's it pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "c68bb184d8774caca38cb811750c8d16efb03319efd575c79593d53d92f83fcf"
+sha256 = "a2d9f34cc0f04390750a886aa0899f2b490461074d0355438eae688dfc96e205"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/ja.tsv"
@@ -3427,7 +3427,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's ja pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "481ab6830d5db7f11e46e4ea3bbc0fee2b740cdc0094c932056ce26a10e862b2"
+sha256 = "5436152a4138173e922e0e3b5b39d0b7c850ededb81849e28005677b6f527a24"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/kk.tsv"
@@ -3438,7 +3438,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's kk pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "5e0ed959b870399a81b400b25395e68cd3771872b90f09bbaf49aff0e7b61ded"
+sha256 = "2c4685fa9d16c64154d679fd1fd14e2dd879d7a07e6bf1c5d6f6dc0fa475eb13"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/ko.tsv"
@@ -3449,7 +3449,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's ko pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "104082b3512b9a82e4115e475511a3ef579102a5636c2304af52816718b4e292"
+sha256 = "f490676a03f6d081c8547f007b7f30e0b0ee2e55a076ebc119ba37e8986c0f74"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/lt.tsv"
@@ -3460,7 +3460,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's lt pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "a74efc49ff37a1975691e702368d845b98c2a184c60f05262d5bdbc9167cb496"
+sha256 = "29c66dcb0e6a0230adb4d95e7cf1fb80c5e3d2a6ed02dc964e362e3f877838bc"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/pl.tsv"
@@ -3471,7 +3471,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's pl pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "f27965477eb00f97587096e638fd844df3f518db11dcc693094f94cd248d9a53"
+sha256 = "769dff89bf54b9457f3265a27ded2caaee1fdac0329c10550d873e5c6b09ad23"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/pt-br.tsv"
@@ -3482,7 +3482,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's pt-br pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "2fa07aee6504be58c9676326ea8baad8cc30da9677f3c369c042b6606afef333"
+sha256 = "a7f0a2f0d3f24f98f9908b750268e5f63e907215ef6471649cd69f218a9b99c0"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/ro.tsv"
@@ -3493,7 +3493,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's ro pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "0e0b88162ac384316af1675b0c37b2d41ed52e6f5af159bb13e0608b04812336"
+sha256 = "22d7153124cb8327eee87a6bad395ef83059ec004bf55e2d84a66b4f1f97a814"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/ru.tsv"
@@ -3504,7 +3504,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's ru pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "8b7128d65d3e90610f1c8eb508f4d7f7eccff51e05f5c9da677f83b49d1f5741"
+sha256 = "79cc324472e3d94549d67092d368c8281fa8071478042dba2b3ac41df2c5fec2"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/sl.tsv"
@@ -3515,7 +3515,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's sl pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "de8b6f3e8e7404cf966d4dc1bcb4c448768f85578eacb9f9ace5a5baec6f9760"
+sha256 = "7dda29cafbf58c0a207dd0c165aeac5e51d30601a1d9b6c37511d57653e93c1f"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/sq.tsv"
@@ -3526,7 +3526,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's sq pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "576305fbe6d84f39fa07acbdd5e055c4a73e354085ceed4d11d75e80ff4bd874"
+sha256 = "022f9d68e48eeebb198efff57c6f728f59dc1ba647fe3a67f21b4dfbd41a69ce"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/te.tsv"
@@ -3537,7 +3537,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's te pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "0878cdf799b37c9d51399163f1a2571bcc63efb42f39ff6df1782317c5abfc91"
+sha256 = "3a84c3b1d34f49c70a18717f4d23305140c823ac9c05edb34084d08687635de3"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/tr.tsv"
@@ -3548,7 +3548,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's tr pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "15559d968aa1f2a84a2a9c007008ea9656f1a260e83f41fd051c7410f58beedd"
+sha256 = "f2bd86c3a384996589ed9c400d6c23f41fb2b43595b2163b4329e0ebcabf9465"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/uk.tsv"
@@ -3559,7 +3559,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's uk pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "716cf9c87bc418aa1755f7ab17ddca250328e2db3a63ddcf9e8280964b0e0eff"
+sha256 = "217d9e03938b57e80f0da85489b18114fbc563cc31bfc2985f9febbdbc0578f7"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/vi.tsv"
@@ -3570,7 +3570,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's vi pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "be3a341adbf46e1929b46cc9bf9fa54b4ee4eef34f42fe1adc28c71224ee1f0f"
+sha256 = "a1bd3cc9aaa9cdc384830e1e69f30d38c421e319d63e672e5e6b9d6c5bee1a46"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/zh-hans.tsv"
@@ -3581,7 +3581,7 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's zh-hans pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "8d79b06df85bc32ebf61463a8c56444839afa9c52503e33085e515f8dc50b0de"
+sha256 = "413091d235ab88d8adef3214de23b1ae6ba99b4affbced0ca1894b4d1253fd7b"
 
 [[asset]]
 path = "crates/ui-egui/i18n-capital8/zh-hant.tsv"
@@ -3592,4 +3592,4 @@ licence = "MIT OR Apache-2.0"
 licence_file = "LICENSE-MIT"
 kind = "translation"
 usage = "Appended to craft-i18n's zh-hant pdfcraft.tsv by crates/ui-egui/build.rs when CRAFT_I18N_DIR is set"
-sha256 = "4e5e0a5809b07570964090b0cbc3b2c80e6deed024a0b3caef072e2cc83188e8"
+sha256 = "fa41baa09209b874818b8330049d95bf73f32a38e512a4e171c448cfc710dad7"
