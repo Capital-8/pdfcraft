@@ -26,6 +26,7 @@ pub(crate) const NEXT_VIEW: Shortcut = Shortcut::cmd("]");
 pub(crate) const FIND_NEXT: Shortcut = Shortcut::cmd("G");
 pub(crate) const FIND_PREV: Shortcut = Shortcut::cmd_shift("G");
 pub(crate) const COPY: Shortcut = Shortcut::cmd("C");
+pub(crate) const PASTE: Shortcut = Shortcut::cmd("V");
 pub(crate) const SELECT_ALL: Shortcut = Shortcut::cmd("A");
 pub(crate) const PAGE_PREV: Shortcut = Shortcut::cmd("←");
 pub(crate) const PAGE_NEXT: Shortcut = Shortcut::cmd("→");
@@ -95,6 +96,8 @@ impl PdfCraftApp {
                     .is_some_and(|v| !v.organize && (v.all_text || v.selected_text().is_some_and(|t| !t.is_empty()))))
             && (spec.needs != commands::Needs::TwoPageView || self.active.and_then(|i| self.views.get(i)).is_some_and(crate::DocView::cover_applies))
             && match spec.id {
+                "comment.copy" => self.active.and_then(|i| self.views.get(i)).is_some_and(|v| v.comments.selected.is_some()),
+                "comment.paste" => self.comment_clipboard.is_some(),
                 "view.previous_view" => self.active.and_then(|i| self.views.get(i)).is_some_and(|v| !v.back.is_empty()),
                 "view.next_view" => self.active.and_then(|i| self.views.get(i)).is_some_and(|v| !v.forward.is_empty()),
                 _ => true,
@@ -523,16 +526,18 @@ impl PdfCraftApp {
             "export.text" => self.dialog = Some(Dialog::Export(crate::export_ui::ExportKind::Text)),
             "ocr.recognize" => {
                 self.ocr_draft.recognize = true;
-                // Plain recognition never crops; only Enhance scanned file turns it on.
+                // Plain recognition never crops; only Correct scanned pages turns it on.
                 self.ocr_draft.auto_crop = false;
                 self.dialog = Some(Dialog::RecognizeText);
             }
-            "ocr.enhance" => {
+            "ocr.enhance" => self.dialog = Some(Dialog::EnhanceScan),
+            "ocr.correct_scan" => {
                 self.ocr_draft.recognize = false;
                 self.ocr_draft.auto_crop = true;
                 self.dialog = Some(Dialog::RecognizeText);
             }
             "ocr.recognize_batch" => self.ocr_files_dialog(),
+            "ocr.correct" => self.ocr_verify.open = true,
             "edit.edit_text" => {
                 self.quick_tool = crate::QuickTool::EditText;
                 self.left = crate::LeftPanel::Tool("edit");
@@ -578,6 +583,14 @@ impl PdfCraftApp {
                     return Some(self.copy_selected_text(i, &ctx));
                 }
                 return Some(false);
+            }
+            "comment.copy" => {
+                let Some(i) = active else { return Some(false) };
+                return Some(self.copy_selected_comments(i));
+            }
+            "comment.paste" => {
+                let Some(i) = active else { return Some(false) };
+                return Some(self.paste_comments(i, None, None));
             }
             "comment.hide_all" => {
                 if let Some(i) = active {
@@ -708,6 +721,7 @@ impl PdfCraftApp {
             }
             fill if crate::fill_sign::FillTool::from_command(fill).is_some() => {
                 let Some(tool) = crate::fill_sign::FillTool::from_command(fill) else { return Some(false) };
+                self.fill_tool = tool;
                 self.quick_tool = crate::QuickTool::Fill(tool);
                 let initials = tool == crate::fill_sign::FillTool::Initials;
                 if (tool == crate::fill_sign::FillTool::Signature && self.signature.is_none()) || (initials && self.initials.is_none()) {
