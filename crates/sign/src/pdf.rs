@@ -25,6 +25,7 @@ use crate::x509::{Certificate, build_chain, build_chain_noted};
 
 mod changes;
 mod listing;
+mod locks;
 mod signing;
 mod types;
 mod validate;
@@ -38,7 +39,7 @@ use listing::{DISCOVERY_CACHE_LIMIT, Field, MAX_ENTRIES, MAX_FIELDS, MAX_NAME_BY
 pub use listing::{DigestCache, list, list_cached};
 pub(crate) use listing::{walk_sig_fields, widget_shown};
 pub(crate) use signing::fmt;
-pub use signing::{Appearance, AppearanceLabels, SignOptions, display_date, sign, sign_with_timestamp, timestamp_document};
+pub use signing::{Appearance, AppearanceLabels, SignOptions, display_date, has_signatures, sign, sign_with_timestamp, timestamp_document};
 pub use types::{Detail, Fill, Modification, Status, TrustStore, WORDINGS, Words, in_english, kind};
 pub(crate) use validate::signature_contents;
 pub use validate::validate;

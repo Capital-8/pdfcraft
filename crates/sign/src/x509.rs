@@ -153,6 +153,7 @@ pub struct Certificate {
 /// qcStatements (1.3.6.1.5.5.7.1.3) is included: RFC 3739 lets qualified (eIDAS and other national)
 /// certificates mark it critical, and it declares the certificate's status rather than limiting
 /// what the key may sign.
+#[cfg(test)]
 const PROCESSED_EXTENSIONS: [&str; 11] = [
     "2.5.29.19",
     "2.5.29.15",
@@ -176,10 +177,37 @@ const EKU_TIME_STAMPING: &str = "1.3.6.1.5.5.7.3.8";
 const DOCUMENT_SIGNING_EKUS: [&str; 6] =
     ["2.5.29.37.0", "1.3.6.1.5.5.7.3.4", "1.3.6.1.5.5.7.3.3", "1.3.6.1.5.5.7.3.36", "1.2.840.113583.1.1.5", "1.3.6.1.4.1.311.10.3.12"];
 
+/// The CA Issuers locations of a certificate's Authority Information Access extension
+/// (RFC 5280 §4.2.2.1), read from its `tbs`: where LTV fetches an issuer the signature didn't
+/// carry. The shared reader keeps only the OCSP locations. Anything unreadable is left out.
+fn ca_issuer_urls(tbs: &[u8]) -> Vec<String> {
+    let mut urls = Vec::new();
+    let Ok(tbs) = Tlv::parse_all(tbs) else { return urls };
+    let fields = tbs.children().unwrap_or_default();
+    let Some(extensions) = fields.iter().find(|t| t.tag == tag::ctx(3)).and_then(|t| t.inner().ok()) else { return urls };
+    for ext in extensions.children().unwrap_or_default() {
+        let e = ext.children().unwrap_or_default();
+        if e.first().and_then(|o| o.oid().ok()).as_deref() != Some("1.3.6.1.5.5.7.1.1") {
+            continue;
+        }
+        let Some(value) = e.last().filter(|v| v.tag == tag::OCTET_STRING) else { continue };
+        let Ok(aia) = Tlv::parse_all(value.value) else { continue };
+        for access in aia.children().unwrap_or_default() {
+            let Ok(a) = access.children() else { continue };
+            let [method, location, ..] = a.as_slice() else { continue };
+            if location.tag == tag::ctx_prim(6) && method.oid().ok().as_deref() == Some("1.3.6.1.5.5.7.48.2") {
+                urls.push(String::from_utf8_lossy(location.value).into_owned());
+            }
+        }
+    }
+    urls
+}
+
 /// The certificate extensions `Certificate::parse` reads, gathered tolerantly: an
 /// extension that does not parse leaves its field at the default instead of failing the
 /// certificate (real-world issuers use encodings with edge cases, e.g. a single-URI CRL
 /// distribution point whose `fullName [0]` is IMPLICIT over a bare GeneralName).
+#[cfg(test)]
 #[derive(Default)]
 struct Extensions {
     is_ca: bool,
@@ -194,6 +222,7 @@ struct Extensions {
     crl_urls: Vec<String>,
 }
 
+#[cfg(test)]
 impl Extensions {
     fn read(&mut self, oid: &str, value: &Tlv<'_>) {
         match oid {
@@ -298,6 +327,53 @@ impl Extensions {
 
 impl Certificate {
     pub fn parse(raw: &[u8]) -> Result<Certificate, SignError> {
+        craft_pkcs7::x509::Certificate::parse(raw).map(Self::from_shared).map_err(crate::der::app_error)
+    }
+
+    pub(crate) fn from_shared(cert: craft_pkcs7::x509::Certificate) -> Self {
+        let parsed = cert.into_parts();
+        use craft_pkcs7::keys::PublicKey as Shared;
+        let public_key = match parsed.public_key {
+            Shared::Rsa { n, e } => PublicKey::Rsa { n, e },
+            Shared::P256(v) => PublicKey::P256(v),
+            Shared::P384(v) => PublicKey::P384(v),
+            Shared::P521(v) => PublicKey::P521(v),
+            Shared::BrainpoolP256(v) => PublicKey::BrainpoolP256(v),
+            Shared::BrainpoolP384(v) => PublicKey::BrainpoolP384(v),
+            Shared::BrainpoolP512(v) => PublicKey::BrainpoolP512(v),
+            Shared::Ed25519(v) => PublicKey::Ed25519(v),
+            Shared::Unsupported { what, spki } => PublicKey::Unsupported { what, spki },
+        };
+        let ca_issuer_urls = ca_issuer_urls(&parsed.tbs);
+        Self {
+            raw: parsed.raw,
+            tbs: parsed.tbs,
+            sig_alg: parsed.sig_alg,
+            signature: parsed.signature,
+            serial: parsed.serial,
+            issuer: Name { attrs: parsed.issuer.attrs, raw: parsed.issuer.raw },
+            subject: Name { attrs: parsed.subject.attrs, raw: parsed.subject.raw },
+            not_before: parsed.not_before,
+            not_after: parsed.not_after,
+            public_key,
+            is_ca: parsed.is_ca,
+            has_basic_constraints: parsed.has_basic_constraints,
+            path_len: parsed.path_len,
+            key_usage: parsed.key_usage,
+            subject_key_id: parsed.subject_key_id,
+            authority_key_id: parsed.authority_key_id,
+            extended_key_usage: parsed.extended_key_usage,
+            ocsp_urls: parsed.ocsp_urls,
+            ca_issuer_urls,
+            crl_urls: parsed.crl_urls,
+            version: parsed.version,
+            unknown_critical: parsed.unknown_critical,
+        }
+    }
+
+    // Original certificate reader retained as an independent parity oracle; see source history.
+    #[cfg(test)]
+    pub(crate) fn parse_legacy(raw: &[u8]) -> Result<Certificate, SignError> {
         let cert = Tlv::parse_all(raw)?.expect(tag::SEQUENCE, "Certificate")?;
         let parts = cert.children()?;
         let [tbs, sig_alg, sig] = parts.as_slice() else { return Err(SignError::Malformed("Certificate".into())) };
@@ -427,10 +503,19 @@ impl Certificate {
 
     /// Whether `key` verifies this certificate's signature.
     pub fn signed_by(&self, key: &PublicKey) -> bool {
+        self.signed_by_cached(key, &mut None)
+    }
+
+    /// [`Self::signed_by`] keeping the digest of the signed part in `digest`, so checking one
+    /// certificate against many candidate keys hashes it once.
+    fn signed_by_cached(&self, key: &PublicKey, digest: &mut Option<Vec<u8>>) -> bool {
         let Ok(alg) = Tlv::parse_all(&self.sig_alg) else { return false };
         match keys::signature_algorithm(&alg) {
             Ok((scheme @ keys::Scheme::Ed25519, _)) => key.verify_message(scheme, &self.tbs, &self.signature).unwrap_or(false),
-            Ok((scheme, Some(digest))) => key.verify(scheme, digest, &digest.digest(&[&self.tbs]), &self.signature).unwrap_or(false),
+            Ok((scheme, Some(d))) => {
+                let hash = digest.get_or_insert_with(|| d.digest(&[&self.tbs]));
+                key.verify(scheme, d, hash, &self.signature).unwrap_or(false)
+            }
             _ => false,
         }
     }
@@ -545,7 +630,8 @@ pub fn build_chain_noted<'a>(leaf: &'a Certificate, pool: &'a [Certificate], at:
         // CA certificates between `last` and the leaf: what a candidate's pathLenConstraint limits.
         let below = chain.len() - 1;
         let mut found = None;
-        for c in pool.iter().filter(|c| c.subject.raw == last.issuer.raw && !chain.contains(c) && last.signed_by(&c.public_key)) {
+        let mut digest = None;
+        for c in pool.iter().filter(|c| c.subject.raw == last.issuer.raw && !chain.contains(c) && last.signed_by_cached(&c.public_key, &mut digest)) {
             // Each reason is a whole sentence, not a phrase stitched into one: a language puts the
             // two names where it needs them.
             let why = if !c.may_issue() {
@@ -693,6 +779,37 @@ mod xfa_ext_tests {
                 let mut ext = Extensions::default();
                 ext.read(oid, &extn); // must not panic and must leave defaults
                 assert!(ext.ocsp_urls.is_empty() && ext.crl_urls.is_empty() && !ext.is_ca);
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod shared_certificate_tests {
+    use super::*;
+
+    #[test]
+    fn shared_certificate_matches_retained_parser_and_error_policy() {
+        let compare = |bytes: &[u8]| match (Certificate::parse(bytes), Certificate::parse_legacy(bytes)) {
+            (Ok(a), Ok(b)) => assert_eq!(a, b),
+            (Err(a), Err(b)) => assert_eq!(format!("{a:?}"), format!("{b:?}")),
+            _ => panic!("shared and retained certificate parsers disagree"),
+        };
+        for fixture in [
+            include_bytes!("../tests/data/ec-p256.p12").as_slice(),
+            include_bytes!("../tests/data/ec-p384.p12").as_slice(),
+            include_bytes!("../tests/data/rsa-aes.p12").as_slice(),
+        ] {
+            let id = crate::pkcs12::open(fixture, "test").unwrap();
+            let raw = &id.certificate.raw;
+            compare(raw);
+            for end in 0..raw.len() {
+                compare(&raw[..end]);
+            }
+            for i in 0..raw.len() {
+                let mut changed = raw.clone();
+                changed[i] ^= 0x80;
+                compare(&changed);
             }
         }
     }

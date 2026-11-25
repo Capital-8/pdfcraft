@@ -241,6 +241,7 @@ fn configure(ui: &mut egui::Ui, app: &mut PdfCraftApp, t: &Tokens) -> bool {
     error(ui, &d.error);
     ui.horizontal(|ui| {
         if !app.digital_ids.is_empty() && widgets::pill_button(ui, tl!("Back"), false).clicked() {
+            d.new_id = NewIdDraft::default();
             d.step = SignStep::Choose;
             d.error = None;
         }
@@ -534,6 +535,7 @@ fn sign_as(ui: &mut egui::Ui, app: &mut PdfCraftApp, t: &Tokens) -> bool {
     error(ui, &d.error);
     ui.horizontal(|ui| {
         if widgets::pill_button(ui, tl!("Back"), false).clicked() {
+            zeroize::Zeroize::zeroize(&mut d.password);
             d.step = SignStep::Choose;
             d.error = None;
         }
@@ -585,7 +587,10 @@ pub(crate) fn online_signing_modal(app: &mut PdfCraftApp, ctx: &egui::Context) {
         });
     });
     if cancel {
-        app.online_signing = None;
+        // Not signed: the form's preSign step is pending again ([`PdfCraftApp::settle_presign`]).
+        if let Some(job) = app.online_signing.take() {
+            app.presign = job.presign;
+        }
         app.notify(tl!("Signing was cancelled; nothing was saved."));
     }
 }

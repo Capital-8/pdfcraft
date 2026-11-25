@@ -85,7 +85,8 @@ fn ocsp(ca: &pkcs12::DigitalId, cert: &Certificate, revoked: bool) -> Vec<u8> {
     let alg = ca.key.signature_algorithm(DigestAlg::Sha256);
     let sig = ca.key.sign(DigestAlg::Sha256, &tbs).unwrap();
     let basic = der::seq(&[&tbs, &alg, &der::bit_string(&sig)]);
-    der::seq(&[&der::int(0), &der::explicit(0, &der::seq(&[&der::oid("1.3.6.1.5.5.7.48.1.1"), &der::octets(&basic)]))])
+    // responseStatus successful(0): an ENUMERATED (RFC 6960).
+    der::seq(&[&der::tlv(tag::ENUMERATED, &[0]), &der::explicit(0, &der::seq(&[&der::oid("1.3.6.1.5.5.7.48.1.1"), &der::octets(&basic)]))])
 }
 
 /// The fake network: fixed answers by URL, a timestamp authority, and a log of what was asked.

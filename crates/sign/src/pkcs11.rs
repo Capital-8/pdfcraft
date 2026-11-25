@@ -333,13 +333,20 @@ struct TokenKey {
     mechanism: KeyMechanism,
 }
 
+/// `DigestInfo ::= SEQUENCE { AlgorithmIdentifier, OCTET STRING }` (RFC 8017 §9.2), with the
+/// NULL parameters: what `CKM_RSA_PKCS` signs.
+fn digest_info(alg: DigestAlg, digest: &[u8]) -> Vec<u8> {
+    let id = crate::der::algorithm(alg.oid(), Some(&crate::der::null()));
+    crate::der::seq(&[&id, &crate::der::octets(digest)])
+}
+
 impl ExternalKey for TokenKey {
     fn sign(&self, alg: DigestAlg, msg: &[u8]) -> Result<Vec<u8>, SignError> {
         let session = self.session.lock().map_err(|_| SignError::Crypto("the token session is unusable after an earlier failure".into()))?;
         let signing = ck("the token didn't sign");
         match self.mechanism {
             KeyMechanism::RsaPkcs => {
-                let info = crate::rsa_pad::digest_info(alg, &alg.digest(&[msg]), true);
+                let info = digest_info(alg, &alg.digest(&[msg]));
                 session.sign(&Mechanism::RsaPkcs, self.key, &info).map_err(signing)
             }
             KeyMechanism::RsaHashed => {

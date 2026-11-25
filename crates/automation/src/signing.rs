@@ -2,6 +2,7 @@
 //! document, and manage trusted certificates. Rectangles are points from the top-left of the
 //! displayed page.
 
+use pdfcraft_engine::js::SignEvent;
 use pdfcraft_engine::sign::{self, Certificate, DigitalId, Modification, Name, PrivateKey};
 use pdfcraft_engine::{SignOptions, SignatureInfo, SignatureStatus};
 use serde_json::{Value, json};
@@ -248,6 +249,8 @@ impl Automation {
         Ok(json!({ "path": path.to_string_lossy(), "certificate": cert_json(&id.certificate) }))
     }
 
+    /// The digital ID `id` names: a .p12/.pfx file opened with `password`, or an OS key store
+    /// identity (`keychain:` on macOS, `windows:` on Windows).
     fn open_id(&self, a: &Args) -> Result<DigitalId> {
         // A macOS Keychain identity: "keychain:<fingerprint>" or "keychain:<common name>".
         if let Some(r) = a.str("id")?.strip_prefix("keychain:") {
@@ -360,6 +363,8 @@ impl Automation {
         Err(failed("smart cards are only available on the desktop"))
     }
 
+    /// `sign_document`: sign the document with a digital ID into `out`, visibly (in a field or a
+    /// rectangle) or not, running a dynamic form's signing scripts around it.
     pub(crate) fn sign_document(&mut self, a: &Args) -> Result<Value> {
         let doc = self.doc(a)?;
         let doc_id = doc.id;
@@ -408,26 +413,16 @@ impl Automation {
             Some(v) => labels_arg(v)?,
         };
         let out = self.resolve(a.str("out")?, true)?;
-        let opts = SignOptions {
-            field,
-            page,
-            rect,
-            reason: a.opt_str("reason")?.map(str::to_string),
-            location: a.opt_str("location")?.map(str::to_string),
-            contact: a.opt_str("contact")?.map(str::to_string),
-            certify,
-            appearance,
-            appearance_labels,
-            graphic,
-            ..SignOptions::default()
-        };
+        // A dynamic form's signing scripts run only when asked: what preSign changes is signed,
+        // and the caller hasn't seen it. What they changed is listed.
+        let run_scripts = a.opt_bool("run_form_scripts")?.unwrap_or(false);
+        // Every argument is read before the preSign scripts change anything, so a bad one is
+        // refused with the document as it was.
+        let reason = a.opt_str("reason")?.map(str::to_string);
+        let location = a.opt_str("location")?.map(str::to_string);
+        let contact = a.opt_str("contact")?.map(str::to_string);
         let tsa = a.opt_str("timestamp_server")?.map(str::trim).filter(|s| !s.is_empty());
         let ltv = a.opt_bool("ltv")?.unwrap_or(false);
-        let refused = |e| match e {
-            // A graphic the signer refuses is the caller's to fix.
-            pdfcraft_engine::EditError::Sign(m) if m.starts_with("the signature graphic") => bad(m),
-            e => failed(e),
-        };
         let fetch = match (tsa.is_some() || ltv, self.signing.fetch.clone()) {
             (false, _) => None,
             (true, Some(fetch)) => Some(fetch),
@@ -437,13 +432,57 @@ impl Automation {
                 ));
             }
         };
-        // Last, once every other argument is known to be good: a card asks for its PIN here.
+        let signing = field.clone();
+        let scripted = signing.as_deref().is_some_and(|f| {
+            self.session.sign_event_scripted(doc_id, f, SignEvent::Before) || self.session.sign_event_scripted(doc_id, f, SignEvent::After)
+        });
+        // Last, once every other argument is known to be good and before the preSign scripts
+        // change anything: a card asks for its PIN here.
         let id = self.open_id(a)?;
-        let (signed, problems) = if let Some(fetch) = fetch {
-            let online = sign::ltv::Online { tsa, ltv, fetch: &*fetch };
-            self.session.sign_online(doc_id, &id, opts, &online).map_err(refused)?
+        // Each field's value and whether it is read-only, to tell what the preSign scripts changed.
+        let values = |me: &Automation| -> std::collections::BTreeMap<String, (Vec<String>, bool)> {
+            me.session.get(doc_id).map(|d| d.form.iter().map(|f| (f.name.clone(), (f.value.clone(), f.read_only()))).collect()).unwrap_or_default()
+        };
+        let was = values(self);
+        let before = match &signing {
+            Some(f) if run_scripts => self.session.run_sign_event(doc_id, f, SignEvent::Before).map_err(failed)?,
+            _ => false,
+        };
+        let changed: Vec<Value> = if before {
+            values(self)
+                .into_iter()
+                .filter(|(name, now)| was.get(name) != Some(now))
+                .map(|(name, (value, read_only))| {
+                    let (old, old_ro) = was.get(&name).cloned().unwrap_or_default();
+                    json!({ "field": name, "before": old, "after": value, "read_only_before": old_ro, "read_only": read_only })
+                })
+                .collect()
         } else {
-            (self.session.sign(doc_id, &id, opts).map_err(refused)?, Vec::new())
+            Vec::new()
+        };
+        let opts =
+            SignOptions { field, page, rect, reason, location, contact, certify, appearance, appearance_labels, graphic, ..SignOptions::default() };
+        let refused = |e| match e {
+            // A graphic the signer refuses is the caller's to fix.
+            pdfcraft_engine::EditError::Sign(m) if m.starts_with("the signature graphic") => bad(m),
+            e => failed(e),
+        };
+        let signed = if let Some(fetch) = fetch {
+            let online = sign::ltv::Online { tsa, ltv, fetch: &*fetch };
+            self.session.sign_online(doc_id, &id, opts, &online).map_err(refused)
+        } else {
+            self.session.sign(doc_id, &id, opts).map(|s| (s, Vec::new())).map_err(refused)
+        };
+        let (signed, problems) = match signed {
+            Ok(s) => s,
+            Err(e) => {
+                // Not signed: what the preSign scripts did is taken back.
+                if before {
+                    let _ = self.session.undo(doc_id);
+                    let _ = self.session.take_js_output(doc_id);
+                }
+                return Err(e);
+            }
         };
         let level = match (tsa.is_some(), ltv) {
             (false, false) => "B-B",
@@ -451,18 +490,49 @@ impl Automation {
             (false, true) => "B-B with LTV information",
             (true, true) => "B-LTA",
         };
-        write_atomic(&out, &signed)?;
+        if let Err(e) = write_atomic(&out, &signed) {
+            // Not saved, so not signed: what the preSign scripts did is taken back too.
+            if before {
+                let _ = self.session.undo(doc_id);
+                let _ = self.session.take_js_output(doc_id);
+            }
+            return Err(e);
+        }
         let path = out.to_string_lossy().into_owned();
         self.session.mark_signed(doc_id, signed.clone(), Some(path.clone())).map_err(failed)?;
+        // Then its postSign scripts; what they change is a change after signing, not saved yet.
+        // The file is signed and saved by now: a postSign step that fails is reported, not an error.
+        let (after, after_error) = match &signing {
+            Some(f) if run_scripts => match self.session.run_sign_event(doc_id, f, SignEvent::After) {
+                Ok(ran) => (ran, None),
+                Err(e) => (true, Some(format!("the postSign step couldn't finish: {e}"))),
+            },
+            _ => (false, None),
+        };
+        let mut scripts = self.session.take_js_output(doc_id);
+        scripts.errors.extend(after_error);
         let doc = self.doc(a)?;
         let newest = doc.signatures.iter().filter(|s| s.signed).max_by_key(|s| s.revision).cloned();
-        Ok(json!({
+        let mut result = json!({
             "path": path,
             "bytes": signed.len(),
             "level": level,
             "missing_revocation_info": problems,
             "signature": newest.map(|s| self.sig_json(a, &s)).transpose()?,
-        }))
+        });
+        if before || after {
+            result["form_scripts"] = json!({
+                "before_signing": before,
+                "after_signing": after,
+                "changed": changed,
+                "alerts": scripts.alerts.iter().map(crate::a11y::form_tools::alert_json).collect::<Vec<_>>(),
+                "errors": scripts.errors,
+                "unsaved_changes": self.doc(a)?.dirty,
+            });
+        } else if scripted {
+            result["form_scripts"] = json!({ "skipped": true, "why": "the field has signing scripts; pass run_form_scripts: true to run them" });
+        }
+        Ok(result)
     }
 
     /// Acrobat's Timestamp: a document timestamp from `timestamp_server` over the file as it is
@@ -531,6 +601,9 @@ impl Automation {
     pub(crate) fn sign_trust(&mut self, a: &Args) -> Result<Value> {
         let mut certs: Vec<Certificate> =
             if a.opt_bool("clear")?.unwrap_or(false) { Vec::new() } else { self.session.trusted_certificates().to_vec() };
+        // Which certificates are already in, by their bytes: a set, so a bundle of many distinct
+        // certificates isn't compared against every one before it.
+        let mut known: std::collections::HashSet<Vec<u8>> = certs.iter().map(|c| c.raw.clone()).collect();
         let paths: Vec<String> = match a.get("paths") {
             None => Vec::new(),
             Some(v) => v
@@ -551,7 +624,7 @@ impl Automation {
                 sign::x509::load_certificates(&bytes).map_err(failed)?
             };
             for c in found {
-                if !certs.iter().any(|t| t.raw == c.raw) {
+                if known.insert(c.raw.clone()) {
                     certs.push(c);
                 }
             }
